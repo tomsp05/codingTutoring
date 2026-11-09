@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Builder's Quest Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: one bright sea-chart world. Header with builder + stats, XP bar, then four tabs: Mission (the hour, run live), Map, Badges, Grown-ups. Single bright theme on purpose. */
+:root {
+  color-scheme: light;
+  --sea: #3fb6c9;
+  --sea-deep: #1f7f95;
+  --sand: #ffe7a8;
+  --grass: #5cc15a;
+  --grass-deep: #3c8f3a;
+  --ink: #16323b;
+  --paper: #fffdf6;
+  --sun: #ffb321;
+  --sun-deep: #c98a10;
+  --lava: #ff6a3d;
+  --muted: #5d7880;
+  --stone: #c9d6da;
+  --mist: #e6eef0;
+  --mist-deep: #b9c9ce;
+  --white: #ffffff;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--sea);
+  background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,.18) 0 2px, transparent 3px),
+                    radial-gradient(circle at 70% 60%, rgba(255,255,255,.14) 0 2px, transparent 3px);
+  background-size: 46px 46px, 61px 61px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.45;
+}
+.wrap {
+  max-width: 1100px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+  display: grid; gap: 18px;
+}
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(30px, 6vw, 46px); margin: 0; color: var(--paper);
+  text-shadow: 0 3px 0 var(--sea-deep); letter-spacing: .5px; text-wrap: balance; }
+.who { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--paper); border-radius: 14px; padding: 8px 12px; box-shadow: 0 4px 0 var(--sea-deep); }
+.who label { font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+input, select, textarea { font: 700 17px var(--body); border: 2px solid var(--stone); border-radius: 10px; padding: 7px 10px; color: var(--ink); background: var(--white); min-width: 0; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--sun); outline-offset: 1px; }
+#bname { width: 170px; }
+.title-chip { font-family: var(--display); font-size: 18px; color: var(--ink); background: var(--sun); border-radius: 10px; padding: 4px 10px; }
+
+.card { background: var(--paper); border-radius: 20px; box-shadow: 0 6px 0 var(--sea-deep); padding: 18px; min-width: 0; }
+.eyebrow { font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 0 0 4px; }
+h2 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 4.5vw, 34px); margin: 0 0 4px; text-wrap: balance; line-height: 1.1; }
+h3 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 0 0 10px; text-wrap: balance; }
+
+/* stats + XP */
+.top { display: grid; gap: 12px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.stat { background: var(--mist); border-radius: 14px; padding: 8px 12px; display: grid; }
+.stat b { font-family: var(--display); font-weight: 400; font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.xp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; font-weight: 800; color: var(--muted); }
+.bar { position: relative; height: 26px; background: var(--mist); border-radius: 13px; overflow: hidden; }
+.fill { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--grass) 0 22px, #4fb04d 22px 26px); border-radius: 13px; transition: width .6s ease; }
+.tick { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--paper); }
+.tick.got { background: var(--sun); }
+
+/* tabs */
+nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+nav.tabs button { flex: 1 1 120px; font: 400 20px var(--display); letter-spacing: .3px; background: var(--sea-deep); color: var(--paper); box-shadow: 0 4px 0 #165f70; }
+nav.tabs button[aria-selected="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 4px 0 var(--sea-deep); }
+
+/* buttons */
+button { font: 800 17px var(--body); border: 0; border-radius: 14px; padding: 13px 12px; cursor: pointer; color: var(--ink);
+  background: var(--mist); box-shadow: 0 4px 0 var(--mist-deep); transition: transform .08s; }
+button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--mist-deep); }
+button:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+button.go { background: var(--grass); color: var(--white); box-shadow: 0 4px 0 var(--grass-deep); }
+button.gold { background: var(--sun); box-shadow: 0 4px 0 var(--sun-deep); }
+button.hot { background: var(--lava); color: var(--white); box-shadow: 0 4px 0 #c24a25; }
+button[disabled] { opacity: .45; cursor: default; transform: none; }
+.small { font-size: 14px; padding: 8px 12px; box-shadow: 0 3px 0 var(--mist-deep); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* mission view */
+.mhead { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.mhead .goal { font-size: 19px; font-weight: 700; margin: 4px 0 10px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-weight: 800; font-size: 14px; border-radius: 999px; padding: 4px 12px; background: var(--mist); }
+.pill.boss { background: var(--lava); color: var(--white); }
+.pill.badge { background: var(--sand); }
+.pill.done { background: var(--grass); color: var(--white); }
+.stepper { display: flex; gap: 6px; align-items: center; }
+.stepper button { padding: 8px 14px; font-size: 20px; }
+.grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; align-items: start; }
+
+/* quest path: stages of small goals, revealed one at a time */
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qhead h3 { margin: 0; }
+.qbar { height: 12px; border-radius: 6px; background: var(--mist); overflow: hidden; margin: 10px 0 14px; }
+.qbar i { display: block; height: 100%; width: 0; background: var(--grass); transition: width .5s ease; }
+.qstages { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.qstage { border-radius: 16px; background: var(--mist); padding: 10px 12px; display: grid; gap: 8px; }
+.qstage.now { background: var(--sand); outline: 3px solid var(--sun); }
+.qstage.ok { background: #dff3de; }
+.qstage.locked { opacity: .75; }
+.qs-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.qs-name { font: 400 21px var(--display); display: flex; align-items: center; gap: 8px; }
+.qs-name svg { width: 18px; height: 18px; flex: none; }
+.qs-meta { font-size: 13px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.qgoals { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.qg { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; font-weight: 700; font-size: 15px; }
+.qg .chk { width: 34px; height: 34px; font-size: 18px; border-width: 2px; }
+.qg .mins { font-size: 13px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+.qg.done .gt { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 2px; }
+.qg.skip .gt { color: var(--muted); font-style: italic; }
+.qcur { background: var(--white); border-radius: 16px; padding: 14px; display: grid; gap: 10px; border: 3px solid var(--ink); }
+.qcur .lbl { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+.qcur .lbl .opt { color: var(--sun-deep); }
+.qcur .gt { font: 400 clamp(22px, 4vw, 27px) var(--display); line-height: 1.15; text-wrap: balance; }
+.qcur .tip { font-size: 14px; font-weight: 700; color: var(--muted); margin: 0; }
+.qcur .row button.go { flex: 1 1 160px; font-size: 19px; }
+.qlock { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--muted); font-size: 15px; padding: 4px 2px; }
+.qlock .q { width: 34px; height: 34px; border-radius: 10px; border: 2px dashed var(--mist-deep); display: grid; place-items: center; font: 400 18px var(--display); flex: none; }
+.allclear { text-align: center; font: 400 24px var(--display); padding: 10px; }
+
+/* game chooser */
+.choices { display: grid; gap: 12px; }
+.choice { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; text-align: left; background: var(--white); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); padding: 12px 14px; }
+.choice:active { box-shadow: 0 1px 0 var(--ink); }
+.choice svg { width: 64px; height: 64px; display: block; }
+.choice b { font: 400 23px var(--display); display: block; }
+.choice span { display: block; font-weight: 700; font-size: 15px; }
+.choice small { display: block; font-weight: 800; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.gamechip { font: 400 17px var(--display); border-radius: 999px; padding: 3px 12px; color: var(--white); }
+.gamepick { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+.erow { display: grid; grid-template-columns: 1fr 64px auto auto; gap: 6px; align-items: center; }
+.erow input { font-size: 15px; padding: 5px 8px; }
+@media (max-width: 520px) { .erow { grid-template-columns: 1fr 56px auto; } .erow .m { display: none; } }
+.plan li.hid { opacity: .5; }
+.btnlike { font: 800 14px var(--body); border-radius: 14px; padding: 8px 12px; cursor: pointer; background: var(--mist); box-shadow: 0 3px 0 var(--mist-deep); }
+.btnlike:focus-within { outline: 3px solid var(--sun); }
+
+/* full plan (grown-ups) */
+.plan { display: grid; gap: 14px; }
+.plan h4 { font: 400 19px var(--display); margin: 0 0 6px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.plan h4 span { font: 800 13px var(--body); color: var(--muted); }
+.plan ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.plan li.pg { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: start; }
+.plan .chk { width: 32px; height: 32px; font-size: 17px; border-width: 2px; }
+.plan li { font-weight: 700; }
+.plan li small { display: block; font-weight: 600; color: var(--muted); }
+.plan li .m { color: var(--muted); font-weight: 800; font-size: 14px; }
+@media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+.col { display: grid; gap: 18px; min-width: 0; }
+
+/* routine + timer */
+.timer { display: grid; gap: 10px; text-align: center; }
+.clock { font: 400 clamp(56px, 13vw, 84px) var(--display); font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: 1px; }
+.clock.low { color: var(--lava); }
+.nowpart { font: 400 24px var(--display); }
+.ring { height: 12px; border-radius: 6px; background: var(--mist); overflow: hidden; }
+.ring i { display: block; height: 100%; background: var(--sun); width: 0; transition: width .3s linear; }
+.routine { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.routine li { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; border-radius: 14px; padding: 8px 10px; background: var(--mist); }
+.routine li.now { background: var(--sand); outline: 3px solid var(--sun); }
+.routine li.ok { background: #dff3de; }
+.routine .t { font-size: 13px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.routine .n { font-weight: 800; }
+.routine .d { font-size: 14px; color: var(--muted); font-weight: 700; }
+.chk { width: 40px; height: 40px; padding: 0; border-radius: 12px; border: 3px solid var(--ink); background: var(--white); box-shadow: none; font: 400 22px var(--display); display: grid; place-items: center; color: var(--white); }
+.chk[aria-pressed="true"] { background: var(--grass); border-color: var(--grass-deep); }
+.chk:active { transform: scale(.92); box-shadow: none; }
+
+/* mission steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.steps li { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; background: var(--mist); border-radius: 16px; padding: 10px 12px; }
+.steps li.ok { background: #dff3de; }
+.steps li.ok .txt { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--muted); }
+.steps .chk { width: 52px; height: 52px; font-size: 28px; }
+.steps .num { font: 400 15px var(--display); color: var(--muted); display: block; }
+.steps .txt { font-weight: 800; font-size: 18px; }
+.bonus { margin: 12px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--sand); font-weight: 700; }
+.bonus b { font-family: var(--display); font-weight: 400; }
+
+/* boss */
+.bossbox { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center; background: var(--ink); color: var(--paper); border-radius: 18px; padding: 14px; margin-bottom: 14px; }
+.bossbox svg { width: 130px; height: 120px; display: block; }
+.bossbox h4 { font: 400 24px var(--display); margin: 0; }
+.bossbox p { margin: 2px 0 8px; font-weight: 700; font-size: 15px; opacity: .85; }
+.hp { height: 18px; border-radius: 9px; background: rgba(255,255,255,.15); overflow: hidden; }
+.hp i { display: block; height: 100%; background: var(--lava); transition: width .5s ease; }
+.hpl { font-size: 13px; font-weight: 800; margin-top: 4px; letter-spacing: .06em; text-transform: uppercase; }
+.shake { animation: shake .45s; }
+@keyframes shake { 0%,100% { transform: translateX(0) } 20% { transform: translateX(-8px) rotate(-4deg) } 40% { transform: translateX(8px) rotate(4deg) } 60% { transform: translateX(-5px) } 80% { transform: translateX(5px) } }
+@media (max-width: 420px) { .bossbox { grid-template-columns: 1fr; justify-items: center; text-align: center; } .bossbox > div { width: 100%; } }
+
+/* wrap + xp */
+.actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.log { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 15px; color: var(--muted); font-weight: 700; }
+.log li { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+.bugbtn { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.bugbtn svg { width: 30px; height: 30px; flex: none; }
+
+/* map */
+.map { padding: 10px; overflow-x: auto; background: var(--sea-deep); }
+.map svg { display: block; width: 100%; min-width: 720px; height: auto; }
+.stone { cursor: pointer; }
+.stone circle.base { fill: var(--stone); stroke: var(--ink); stroke-width: 3; }
+.stone.done circle.base { fill: var(--sun); }
+.stone.boss circle.base { stroke: var(--lava); stroke-width: 5; }
+.stone.next circle.base { fill: var(--white); }
+.stone.next .halo { fill: none; stroke: var(--white); stroke-width: 4; opacity: .9; animation: pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.stone .numt { font: 400 22px var(--display); fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.stone.sel circle.base { stroke: var(--white); stroke-width: 6; }
+.stone:focus-visible { outline: none; }
+.stone:focus-visible circle.base { stroke: var(--sun); stroke-width: 7; }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: .9 } 50% { transform: scale(1.25); opacity: .2 } }
+.isle-label { font: 400 24px var(--display); fill: var(--ink); text-anchor: middle; }
+.isle-sub { font: 800 13px var(--body); fill: var(--ink); text-anchor: middle; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.mini { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; }
+@media (max-width: 600px) { .mini { grid-template-columns: 1fr; } }
+.mini .goal { font-weight: 700; margin: 2px 0 8px; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; font-size: 14px; font-weight: 800; color: var(--muted); align-items: center; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: var(--stone); }
+.dot.on { background: var(--grass); }
+
+/* badges */
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
+.bdg { display: grid; justify-items: center; gap: 6px; text-align: center; font-size: 13px; font-weight: 800; }
+.medal { width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center; font: 400 26px var(--display);
+  background: var(--mist); color: #9fb3b9; border: 3px dashed var(--mist-deep); }
+.bdg.got .medal { color: var(--ink); border: 4px solid var(--ink); }
+.bdg.got.p1 .medal { background: var(--sand); }
+.bdg.got.p2 .medal { background: #bfe9c0; }
+.bdg.got.p3 .medal { background: #ffd0bf; }
+.bdg.got.boss .medal { background: var(--sun); box-shadow: 0 0 0 4px var(--lava); }
+.bdg span { color: var(--muted); }
+.bdg.got span { color: var(--ink); }
+.titles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 560px) { .titles { grid-template-columns: 1fr; } }
+.ttl { border-radius: 16px; padding: 12px; background: var(--mist); display: grid; gap: 2px; }
+.ttl b { font: 400 21px var(--display); }
+.ttl span { font-size: 14px; font-weight: 800; color: var(--muted); }
+.ttl.got { background: var(--sun); }
+.ttl.got span { color: var(--ink); }
+.rewards { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rewards li { display: flex; gap: 10px; align-items: center; font-weight: 700; }
+.rbox { width: 28px; height: 28px; border-radius: 8px; border: 3px solid var(--ink); display: grid; place-items: center; flex: none; font-weight: 800; }
+.rewards li.got .rbox { background: var(--grass); color: var(--white); border-color: var(--grass); }
+.rewards small { color: var(--muted); font-weight: 800; }
+
+/* grown-ups */
+.form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.form label { display: grid; gap: 4px; font-weight: 800; font-size: 14px; color: var(--muted); }
+.form .wide { grid-column: 1 / -1; }
+@media (max-width: 600px) { .form { grid-template-columns: 1fr; } }
+textarea { resize: vertical; min-height: 64px; font-weight: 600; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 15px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 2px solid var(--mist); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+td.n { font-variant-numeric: tabular-nums; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--mist); }
+.tag { font-size: 13px; font-weight: 800; border-radius: 999px; padding: 2px 9px; background: var(--mist); white-space: nowrap; }
+.tag.yes { background: var(--grass); color: var(--white); }
+.tag.help { background: var(--sun); }
+.tag.not { background: var(--stone); }
+.rwlist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 12px; }
+@media (max-width: 600px) { .rwlist { grid-template-columns: 1fr; } }
+.rwlist label { display: grid; grid-template-columns: 80px 1fr; gap: 8px; align-items: center; font-weight: 800; font-size: 14px; color: var(--muted); }
+.rules { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-weight: 600; }
+.note { font-size: 14px; color: var(--muted); font-weight: 700; margin: 0; }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-weight: 800; }
+
+/* overlays */
+.overlay { position: fixed; inset: 0; z-index: 30; background: rgba(22,50,59,.72); display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.overlay .card { max-width: 460px; width: 100%; text-align: center; display: grid; gap: 10px; }
+.overlay .big { font: 400 clamp(34px, 8vw, 46px) var(--display); line-height: 1.05; }
+.overlay ul { text-align: left; margin: 0 auto; font-weight: 800; font-size: 18px; display: grid; gap: 4px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(160%);
+  background: var(--ink); color: var(--paper); font: 400 22px var(--display); padding: 12px 22px; border-radius: 16px; transition: transform .3s; z-index: 40; max-width: calc(100% - 32px); text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) { .stone.next .halo, .shake { animation: none; } .fill, .toast, .hp i, .ring i { transition: none; } }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <header>
+    <h1>Builder's Quest</h1>
+    <div class="who">
+      <label for="bname">Builder</label>
+      <input id="bname" maxlength="20" placeholder="Your builder name" autocomplete="off">
+      <span class="title-chip" id="rank">Builder in training</span>
+    </div>
+  </header>
+
+  <section class="card top" aria-label="Progress">
+    <div class="stats">
+      <div class="stat"><b id="s-xp">0</b><span>XP</span></div>
+      <div class="stat"><b id="s-stones">0/20</b><span>Stones</span></div>
+      <div class="stat"><b id="s-goals">0</b><span>Goals smashed</span></div>
+      <div class="stat"><b id="s-bugs">0</b><span>Bugs squashed</span></div>
+    </div>
+    <div class="xp-top"><span id="xpnum">0 XP</span><span id="xpnext">50 XP to your first reward</span></div>
+    <div class="bar" id="bar"><div class="fill" id="fill" style="width:0%"></div></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-mission" data-tab="mission">Mission</button>
+    <button role="tab" id="tab-map" data-tab="map">Map</button>
+    <button role="tab" id="tab-badges" data-tab="badges">Badges</button>
+    <button role="tab" id="tab-grownups" data-tab="grownups">Grown-ups</button>
+  </nav>
+
+  <!-- MISSION -->
+  <div id="view-mission" role="tabpanel" aria-labelledby="tab-mission" class="col">
+    <section class="card">
+      <div class="mhead">
+        <div style="min-width:0">
+          <p class="eyebrow" id="m-eyebrow">Session 1 of 20</p>
+          <h2 id="m-name">Welcome, Builder!</h2>
+          <p class="goal" id="m-goal"></p>
+          <div class="meta" id="m-meta"></div>
+        </div>
+        <div class="stepper">
+          <button id="m-prev" aria-label="Previous session">◀</button>
+          <button id="m-next" aria-label="Next session">▶</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <div class="col">
+        <section class="card" id="chooser" hidden>
+          <p class="eyebrow">You're a Master Builder. Time to choose!</p>
+          <h3>What game will you make?</h3>
+          <p class="note" style="margin-bottom:12px">Pick one. Sessions 16 to 20 change to match it. A grown-up can swap it later.</p>
+          <div class="choices" id="choices"></div>
+        </section>
+        <section class="card" id="qcard">
+          <div id="bossbox"></div>
+          <div class="qhead">
+            <h3>Quest path</h3>
+            <span class="pill" id="q-left">About 60 min of goals</span>
+          </div>
+          <div class="qbar" aria-hidden="true"><i id="q-bar"></i></div>
+          <ol class="qstages" id="qstages"></ol>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="card timer" aria-label="Session timer">
+          <p class="eyebrow">Now</p>
+          <div class="nowpart" id="t-part">Warm-up</div>
+          <div class="clock" id="t-clock" aria-live="off">5:00</div>
+          <div class="ring"><i id="t-ring"></i></div>
+          <div class="row" style="justify-content:center">
+            <button class="go" id="t-go">Start</button>
+            <button id="t-plus">+1 min</button>
+            <button id="t-skip">Next part</button>
+          </div>
+          <div class="row" style="justify-content:center">
+            <button class="small" id="t-break">Movement break</button>
+            <button class="small" id="t-sound" aria-pressed="true">Sound on</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Win and wrap</h3>
+          <div class="actions" id="xpbtns"></div>
+          <ul class="log" id="slog"></ul>
+        </section>
+        <section class="card">
+          <h3>Squash a bug</h3>
+          <p class="note" style="margin-bottom:10px">Found a bug and fixed it? Ctrl+Z counts. Every squash goes on the counter.</p>
+          <button class="bugbtn" id="bug" style="width:100%">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="18" rx="8" ry="10" fill="#ff6a3d" stroke="#16323b" stroke-width="2"/><circle cx="16" cy="7" r="4" fill="#16323b"/><path d="M16 9v19M8 14l-5-3M8 20H2M8 25l-5 3M24 14l5-3M24 20h6M24 25l5 3" stroke="#16323b" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12.5" cy="16" r="1.6" fill="#16323b"/><circle cx="19.5" cy="21" r="1.6" fill="#16323b"/></svg>
+            <span>Bug squashed!</span>
+          </button>
+          <button class="small" id="bugminus" style="margin-top:10px">Take one off</button>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="view-map" role="tabpanel" aria-labelledby="tab-map" class="col" hidden>
+    <section class="card map" aria-label="Quest map">
+      <svg id="map" viewBox="0 0 1000 520" role="group" aria-label="20 stepping stones across three islands"></svg>
+    </section>
+    <section class="card mini" id="mapinfo"></section>
+  </div>
+
+  <!-- BADGES -->
+  <div id="view-badges" role="tabpanel" aria-labelledby="tab-badges" class="col" hidden>
+    <section class="card"><h3>Titles</h3><div class="titles" id="titles"></div></section>
+    <section class="card"><h3>Badge shelf</h3><div class="badges" id="badges"></div></section>
+    <section class="card"><h3>Rewards (every 50 XP)</h3><ul class="rewards" id="rewards"></ul></section>
+  </div>
+
+  <!-- GROWN-UPS -->
+  <div id="view-grownups" role="tabpanel" aria-labelledby="tab-grownups" class="col" hidden>
+    <section class="card">
+      <div class="mhead">
+        <div style="min-width:0">
+          <p class="eyebrow">Full lesson plan · grown-ups only</p>
+          <h3 id="p-title" style="margin:0">Session 1</h3>
+          <p class="note" id="p-sub"></p>
+          <p class="note">Tap a box to tick or untick any goal, even in past sessions. Edit goals lets you change, hide or add goals and their times.</p>
+          <div class="row" id="p-tools" style="margin-top:8px"></div>
+        </div>
+        <div class="stepper">
+          <button id="p-prev" aria-label="Previous session">◀</button>
+          <button id="p-next" aria-label="Next session">▶</button>
+        </div>
+      </div>
+      <div class="plan" id="plan" style="margin-top:12px"></div>
+    </section>
+    <section class="card">
+      <p class="eyebrow" id="g-eyebrow">Session notes</p>
+      <h3 id="g-title">Session 1 notes</h3>
+      <div class="form">
+        <label>Date<input type="date" id="n-date"></label>
+        <label>Core mission done?
+          <select id="n-core"><option value="">Not set</option><option value="yes">Yes</option><option value="help">With help</option><option value="not">Not yet</option></select>
+        </label>
+        <label>Longest focus stretch (mins)<input type="number" id="n-focus" min="0" max="60" inputmode="numeric"></label>
+        <label>Bugs squashed this session<input type="text" id="n-bugs" readonly></label>
+        <label class="wide">What hooked them<textarea id="n-hook"></textarea></label>
+        <label class="wide">What caused frustration<textarea id="n-frust"></textarea></label>
+        <label class="wide">One thing to change next time<textarea id="n-change"></textarea></label>
+      </div>
+      <p class="note" id="g-hint" style="margin-top:10px"></p>
+    </section>
+    <section class="card">
+      <h3>All sessions</h3>
+      <p class="note" style="margin-bottom:8px">Tap a row to open its notes.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>Mission</th><th>Date</th><th>Core</th><th>Focus</th><th>Goals</th><th>XP</th><th>Change next time</th></tr></thead>
+        <tbody id="g-table"></tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <h3>Rewards agreed with parents</h3>
+      <div class="rwlist" id="rwlist"></div>
+    </section>
+    <section class="card">
+      <h3>How XP works</h3>
+      <ul class="rules">
+        <li>Mission done +10 (unlocks the badge and moves to the next stone)</li>
+        <li>Bonus challenge +5, Great focus +5, Tried again after a bug +5</li>
+        <li>Boss beaten +15 on sessions 5, 10, 15 and 20</li>
+        <li>A reward every 50 XP. Each button works once per session</li>
+        <li>Made a mistake? Take away any XP line under Win and wrap, untick any goal in the plan above, take a bug off, or reset a whole session below</li>
+      </ul>
+    </section>
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <p class="note" id="savewhere">Progress saves automatically.</p>
+        <div class="row" id="adultbtns"></div>
+      </div>
+      <div class="row" id="backup" style="margin-top:12px" hidden>
+        <p class="note" style="flex:1 1 220px">Save a backup file of all progress, or load one to carry on from another device.</p>
+        <button class="small" id="exportbtn">Download backup</button>
+        <label class="small btnlike" for="importfile">Load backup</label>
+        <input type="file" id="importfile" accept=".json,application/json" hidden>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="overlay" id="breakov" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="br-h">
+    <div class="big" id="br-h">Movement break!</div>
+    <ul><li>Stand up and stretch high</li><li>10 star jumps</li><li>Shake out your hands</li><li>Big breath in, and out</li></ul>
+    <div class="clock" id="br-clock" style="font-size:56px">2:00</div>
+    <button class="go" id="br-done">Back to building</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MISSIONS = [
+  [1,"Welcome, Builder!","I can open Studio, move the camera and press Play","Explorer",
+    ["Look around: hold right-click and drag","Fly with W A S D, go up and down with E and Q","Click a part to pick it","Press Play, walk about, press Stop"],"Find all 3 treasure blocks in under 2 minutes"],
+  [2,"Paint the World","I can change the colour and material of parts","Painter",
+    ["Open the Obby template","Click a part and change its BrickColor","Change its Material: grass, ice, wood or neon","Pick a theme: lava, ice or candy world"],"Make one neon glowing path"],
+  [3,"Bigger, Smaller, Twistier","I can move, scale and rotate parts","Scaler",
+    ["Move a platform with the Move tool","Make one bigger or smaller with Scale","Turn one with Rotate","Make one jump easier and one harder"],"Build a staircase of 5 platforms"],
+  [4,"Race Day","I can change settings to change how a game feels","Racer",
+    ["Open the Racing template","Recolour the track","Move the cones","Copy a ramp with Ctrl+D, then race a lap"],"Add a shortcut ramp"],
+  [5,"Remix Challenge","I can remix a whole level so it looks like mine","Apprentice Builder",
+    ["Pick a new theme and paint the level","Change 3 jumps","Recolour the finish","Let someone else play it"],"Name your game and save a thumbnail screenshot"],
+  [6,"Block Builder","I can add my own parts and group them","Builder",
+    ["Insert a block, sphere, wedge and cylinder","Build a den or tower from 8 parts","Select it all and group it with Ctrl+G","Move the whole thing in one go"],"Add a roof made of wedges"],
+  [7,"Decorate Island","I can add models from my kit and place them neatly","Designer",
+    ["Drag trees and rocks from the Builder's Kit","Rotate and scale so nothing floats","Add fences and lights","Change ClockTime for day or night"],"Make a sunset (ClockTime 18)"],
+  [8,"Switch It","I can use property switches to make tricks","Trickster",
+    ["Ghost floor: turn CanCollide off","Invisible wall: set Transparency to 1","Falling block: turn Anchored off","Fill in a When… Then… card for each"],"Build a secret invisible bridge"],
+  [9,"Danger Zone","I can add a trap that sends players back","Trap Maker",
+    ["Drag a Kill Brick in from the kit","Colour it so players know (or don't, sneaky!)","Build a 3-jump lava run","Play test it"],"A kill brick that's also a ghost floor"],
+  [10,"Trap Course","I can build a short level that is fair but tricky","Trap Champion",
+    ["Build 6 jumps","Add 2 kill bricks and 1 ghost floor","Add a finish pad","Take turns playing, then fix one thing"],"Beat it with zero falls"],
+  [11,"Save Point","I can add checkpoints so players don't start again","Checkpoint",
+    ["Insert a SpawnLocation","Put more along the course","Colour them so they're easy to spot","Fall off on purpose and check you come back"],"Decorate each checkpoint with a flag"],
+  [12,"Things That Move","I can make a part spin or slide","Engineer",
+    ["Add a HingeConstraint with a Motor","Change Speed to make it spin","Add a PrismaticConstraint with a Servo","Change Target to tune the slide"],"A spinning bar players must jump over"],
+  [13,"Coin Collector","I can add coins and a score","Coin Collector",
+    ["Drag Coins in from the kit","Change each coin's Value: 1, 5 or 10","Hide a rare 10-point coin","Play and watch your score go up"],"A secret coin behind an invisible wall"],
+  [14,"Power-Ups","I can change how fast or high a player goes","Power-Up",
+    ["Drag in a Speed Pad","Change WalkSpeed and test it","Drag in a Jump Pad and change JumpPower","Add a sound from the kit"],"A jump pad that reaches a hidden platform"],
+  [15,"Mini Adventure","I can combine everything into one level","Master Builder",
+    ["A start spawn and 2 checkpoints","1 moving part and some traps","3 coins and 1 power-up","A finish, then show someone"],"Collect every coin in one run"],
+  [16,"Game Designer","I can plan my own game on paper","Game Planner",
+    ["Name your game and pick a theme","Draw your 3 stages as boxes","Mark the traps, coins and how you win","Start building the spawn area"],"Draw a logo for your game"],
+  [17,"Build Stage 1 and 2","I can build my levels from my plan","Level Maker",
+    ["Build stage 1 from your plan","Add a checkpoint at the end of it","Build stage 2 and its checkpoint","Tick each thing off your plan"],"Add a secret area"],
+  [18,"Build Stage 3 and the Finish","I can finish my game","Finisher",
+    ["Build stage 3, the hardest one","Build a finish area","Add a celebration: confetti, music, a You Win sign","Add coins and power-ups"],"Put a trophy at the end"],
+  [19,"Bug Hunt","I can test my game and fix problems","Tester",
+    ["Play your whole game","Watch a grown-up play it too","Write each bug on the Bug Hunt sheet","Squash 5 bugs"],"Get someone else to finish your game"],
+  [20,"Launch Day","I can publish and share my game","Game Creator",
+    ["Give your game a name and description","Take a thumbnail screenshot","Publish it (Private or friends-only, with a grown-up)","Host the premiere!"],"Write down 2 ideas for version 2"]
+].map(([n,name,goal,badge,steps,bonus]) => ({n,name,goal,badge,steps,bonus,boss:[5,10,15,20].includes(n)}));
+
+/* Full lesson plans. Each goal: [text, minutes, grown-up tip]. Warm-up, play test and wrap use the standard
+   goals unless a session sets its own. A movement break is slotted into the middle of Build time. */
+const STD = {
+  warm: [["Play last session's build for 2 minutes", 3, "Open last session's file before they arrive"], ["Look at today's mission and badge", 2, "Show the mission card and point at the glowing stone"]],
+  test: [["Play your build from start to end", 4], ["Watch your grown-up play it. Listen for one wow and one what if", 3, "Give one specific wow and one gentle what if"], ["Fix your what if, or save it for next time", 3]],
+  wrap: [["Save with Ctrl+S", 1], ["Screenshot it into My Builds", 1, "Use the Screenshot button below to tick it off"], ["Collect your XP and badge", 3, "Press Mission done, then the badge sticker goes on"]]
+};
+const PLAN = {
+  1: { warm: [["Type your builder name at the top", 2], ["Look at today's mission and the Explorer badge", 2], ["Open Roblox Studio and pick Baseplate", 1, "Studio already open on the S1 Treasure Hunt file saves time"]],
+       show: [["Look around: hold right-click and drag", 3, "Hold right-click for them if it's tricky"], ["Fly with W A S D. E goes up, Q goes down", 4, "Watch me, then your turn"], ["Click a part to pick it. Click the sky to let go", 3]],
+       build: [["Camera challenge: look at the sky", 2], ["Camera challenge: fly to the SpawnLocation", 3], ["Camera challenge: go up really high", 2], ["Find the RED treasure block", 6, "Hint after 2 minutes: try behind the spawn"], ["Find the BLUE treasure block", 6, "Hint: try looking up"], ["Find the YELLOW treasure block", 6, "Hint: try the far edge"], ["Click each treasure to claim it", 3]],
+       test: [["Press Play and walk your avatar about", 4], ["Walk to each treasure block", 3], ["Press Stop to go back to building", 1, "Stuck in Play? Red Stop button or Shift+F5"], ["Tell your grown-up your favourite bit", 2]] },
+  2: { show: [["Find the Properties window", 3, "It's the panel on the right"], ["Click a part, then change its BrickColor", 4], ["Change a part's Material", 3]],
+       build: [["Open the Obby template", 2], ["Pick your theme: lava, ice or candy world", 2], ["Paint the start area in your theme colours", 6], ["Paint 5 platforms", 6], ["Give 3 parts a new Material", 5], ["Make the finish line stand out", 4], ["Play it to see your world", 3]] },
+  3: { show: [["Move tool: drag an arrow", 3], ["Scale tool: drag a ball", 3], ["Rotate tool: drag a ring", 4]],
+       build: [["Turn on Snap to grid (1 stud)", 2, "Model tab, then the Snap settings"], ["Move 3 platforms to new places", 5], ["Make one platform huge", 4], ["Make one platform tiny", 4], ["Twist a platform with Rotate", 4], ["Make one jump easier", 4], ["Make one jump harder", 5]] },
+  4: { show: [["Open the Racing template", 3], ["Copy a part with Ctrl+D", 3], ["Drive the car in Play mode", 4]],
+       build: [["Recolour the track", 5], ["Move the cones to make a new route", 5], ["Copy a ramp with Ctrl+D", 4], ["Put the new ramp on the track", 5], ["Change the colour of the start line", 3], ["Race one full lap", 6]] },
+  5: { show: [["Look at the Obby. What will you change?", 3], ["Quick reminder: colour, material, move, scale", 4], ["Plan it: your theme and 3 jumps to change", 3]],
+       build: [["Paint the start area in your new theme", 5], ["Paint every platform", 6], ["Change jump 1", 4], ["Change jump 2", 4], ["Change jump 3", 4], ["Recolour the finish", 3], ["Try the whole level once", 2]],
+       test: [["Let someone else play your remix", 4], ["Cheer them on while they play", 3], ["Fix one thing they found", 3]] },
+  6: { show: [["Insert a Part from the Model tab", 3], ["Change its shape: block, sphere, wedge, cylinder", 4], ["Select lots of parts and group with Ctrl+G", 3]],
+       build: [["Open a fresh Baseplate", 1], ["Place 2 blocks for the floor", 4], ["Add 4 walls or tower blocks", 6], ["Add a sphere, wedge or cylinder", 4], ["Count your parts. 8 or more?", 2], ["Select everything and group with Ctrl+G", 3], ["Move the whole build in one go", 3], ["Colour your build", 5]] },
+  7: { show: [["Find the Builder's Kit folder", 3, "Only use the checked kit, not free Toolbox models"], ["Drag a model into the world", 3], ["Change ClockTime in Lighting", 4]],
+       build: [["Plant 3 trees", 5], ["Add 3 rocks", 4], ["Check nothing floats. Fix it with Move", 4], ["Add a fence", 5], ["Add some lights", 4], ["Pick day or night with ClockTime", 3], ["Fly round and admire your island", 3]] },
+  8: { show: [["CanCollide off makes a ghost part", 3], ["Transparency 1 makes it invisible", 3], ["Anchored off makes it fall", 4]],
+       build: [["Build a ghost floor", 4], ["Play test it. Do you fall through?", 3], ["Fill in a When… Then… card for it", 3, "WHEN a player stands on it, THEN they fall through"], ["Build an invisible wall", 4], ["Play test it. Can you walk through?", 3], ["Build a falling block", 4], ["Play test it", 3], ["Fill in When… Then… cards for the other two", 4]] },
+  9: { show: [["Drag a Kill Brick in from the kit", 3], ["See what it does in Play mode", 4], ["Copy it with Ctrl+D", 3]],
+       build: [["Build platform 1", 4], ["Put a Kill Brick lava floor under it", 4], ["Build platform 2", 4], ["Build platform 3", 4], ["Copy more lava with Ctrl+D", 4], ["Pick: warning colour or sneaky trap?", 3], ["Run the whole lava run", 5]] },
+  10: { show: [["Plan your 6 jumps on paper", 4], ["Remember Kill Bricks and ghost floors", 3], ["What makes a jump fair?", 3, "Fair means you can see it and it's possible"]],
+        build: [["Build jumps 1 and 2", 5], ["Build jumps 3 and 4", 5], ["Build jumps 5 and 6", 5], ["Add 2 Kill Bricks", 4], ["Add 1 ghost floor", 3], ["Add a finish pad", 3], ["Try it yourself once", 3]],
+        test: [["Take turns trying the course", 5], ["Too hard? Change one thing", 3], ["Try it again", 2]] },
+  11: { show: [["Insert a SpawnLocation", 3, "Set up Teams before the session (handbook section 10). Extra spawns on their own are random, not checkpoints"], ["Touch it to make it your checkpoint", 3, "Each spawn: Neutral off, AllowTeamChangeOnTouch on, TeamColor matching its Team"], ["Fall off on purpose. Where do you come back?", 4, "Back at a random spawn? The Teams setup is missing"]],
+        build: [["Open your trap course", 2], ["Put a checkpoint after jump 2", 5, "Each checkpoint needs its own Team with a matching TeamColor"], ["Put a checkpoint after jump 4", 5], ["Put one before the finish", 5], ["Decorate them so they're easy to spot", 4, "Colour comes from TeamColor, so pick team colours they like. Duration 0 removes the sparkly bubble"], ["Fall off and check you come back", 4], ["Talk about it: why do checkpoints make games kinder?", 3]] },
+  12: { show: [["Add a HingeConstraint", 4, "Model tab, then Constraints"], ["Set it to Motor and change AngularVelocity", 3, "MotorMaxTorque starts at 0, so turn it up or nothing moves"], ["Add a PrismaticConstraint set to Servo", 3, "ServoMaxForce 100000, Speed 5, platform unanchored"]],
+        build: [["Build a platform to spin", 4], ["Add a hinge with a motor", 5], ["Change AngularVelocity: slow or fast?", 3, "2 or less keeps it fair"], ["Play test the spinner", 3], ["Build a platform to slide", 4], ["Add a slider with a servo", 5, "A servo slides once and stops. For back and forth, use the kit's Back and Forth part"], ["Change TargetPosition to set how far it slides", 4]] },
+  13: { show: [["Drag a Coin in from the kit", 3], ["Find its Value number in Properties", 4, "It's an Attribute near the bottom of Properties"], ["Watch the score in Play mode", 3]],
+        build: [["Place 5 coins along your course", 6], ["Set some coins to 1", 3, "Change numbers in edit mode, then press Play"], ["Set some coins to 5", 3], ["Make one rare coin worth 10", 3], ["Hide the 10 coin somewhere tricky", 5], ["Play and collect them all", 5], ["What's your top score?", 3]] },
+  14: { show: [["Drag in a Speed Pad", 3], ["Change its WalkSpeed number", 3], ["Drag in a Jump Pad and change JumpPower", 4, "Tick CharacterUseJumpPower under StarterPlayer first, or JumpPower changes do nothing"]],
+        build: [["Put a Speed Pad before a long run", 4], ["Try WalkSpeed 30", 3], ["Try WalkSpeed 60. Too fast?", 3], ["Put a Jump Pad down", 4], ["Find a JumpPower you like", 4, "Nothing happening? Check CharacterUseJumpPower is ticked"], ["Add a sound from the kit", 5, "Turn the volume down first if sound is a lot"], ["Test both pads", 5]] },
+  15: { show: [["Check the list: what goes in?", 3], ["Plan where each thing goes", 4], ["Quick reminder: checkpoints and pads", 3]],
+        build: [["Add a start spawn", 3], ["Add checkpoint 1", 3], ["Add checkpoint 2", 3], ["Add 1 moving part", 5], ["Add some traps", 4], ["Add 3 coins", 4], ["Add 1 power-up", 3], ["Build a finish", 3]],
+        test: [["Play the whole adventure", 4], ["Show it off to someone at home", 4], ["Fix one thing", 2]] },
+  16: { show: [["Look at the Game Plan sheet", 3], ["Obby or coin hunt? Have a think", 4], ["Pick 3 colours for your game", 3]],
+        build: [["Name your game", 3], ["Pick a theme", 3], ["Draw stage 1 as a box", 4], ["Draw stage 2", 4], ["Draw stage 3", 4], ["Mark the traps, coins and how you win", 5], ["Start the spawn area on a Baseplate", 5]],
+        test: [["Tell your grown-up about your plan", 4], ["Play your spawn area", 3], ["Add one more idea to the plan", 3, "Keep it small: 3 stages is plenty"]] },
+  17: { show: [["Look at your Game Plan", 3], ["Copy something from one of your old builds", 4, "Copying their own builds is a good habit"], ["Tick things off as you go", 3]],
+        build: [["Build the start of stage 1", 5], ["Finish stage 1", 5], ["Checkpoint at the end of stage 1", 3], ["Build the start of stage 2", 5], ["Finish stage 2", 5], ["Checkpoint at the end of stage 2", 3], ["Tick them off your plan", 2]] },
+  18: { show: [["Drag in the Confetti part", 3], ["Add music or a sound", 4], ["Make a You Win sign", 3]],
+        build: [["Build the start of stage 3", 5], ["Make stage 3 the hardest", 5], ["Build the finish area", 5], ["Add the confetti", 3], ["Add the You Win sign", 3], ["Add coins", 4], ["Add power-ups", 3]] },
+  19: { show: [["What counts as a bug?", 3, "Floating parts, impossible jumps, missing checkpoints"], ["Look at the Bug Hunt sheet", 3], ["Squash one bug together", 4]],
+        build: [["Play the whole game", 6], ["Write down the bugs you find", 4], ["Squash bug 1", 3], ["Squash bug 2", 3], ["Squash bug 3", 3], ["Squash bug 4", 3], ["Squash bug 5", 3], ["Play it again", 3]],
+        test: [["Watch a grown-up play the whole game", 4], ["Hunt for any last bugs", 3], ["Squash one more", 3]] },
+  20: { show: [["Find Game Settings", 3], ["See where publishing lives", 4], ["Privacy: Private or friends-only", 3, "Publish on the parent's account, with their OK"]],
+        build: [["Give your game a name", 3], ["Write a short description", 5], ["Take a thumbnail screenshot", 4], ["Publish it with your grown-up", 6], ["Check it's Private or friends-only", 3], ["Invite the family to the premiere", 3], ["Get your favourite bit ready to show", 4]],
+        test: [["Premiere: the family play your game", 5], ["Show them your favourite part", 3], ["Take a bow!", 2]] }
+};
+const BREAK = ["Movement break: stand up, stretch, 10 star jumps", 2, "Screens off. This opens a 2-minute break timer", "break"];
+const STAGE_NAMES = ["Warm-up", "Show me", "Build time", "Play test", "Win and wrap"];
+const STAGE_AT = ["0–5", "5–15", "15–45", "45–55", "55–60"];
+const mk = (g, extra) => Object.assign({ t: g[0], min: g[1], tip: g[2] || "", kind: g[3] || "" }, extra || {});
+/* Game types the learner picks from after session 15. "obby" uses the main PLAN above. */
+const PATHS = {
+  obby: { name: "Obby Adventure", pitch: "A 3-stage obstacle course with traps, checkpoints and a big finish.", uses: "Trap Course, Save Point, Things That Move", col: "#ff6a3d", icon: "obby",
+    m: {}, plan: {}, hunt: "Play your whole obby, start to finish" },
+  coins: { name: "Coin Hunt Island", pitch: "An island to explore, with coins hidden everywhere and a top score to beat.", uses: "Decorate Island, Coin Collector, Switch It", col: "#ffb321", icon: "coins",
+    hunt: "Hunt for every coin. Any you can't reach?",
+    m: { 17: ["Build the Island", "I can build the zones of my island", "Add a secret cave"], 18: ["Hide the Treasure", "I can hide coins and make them tricky to find", "Put a trophy at the end"] },
+    plan: {
+      16: { build: [["Name your game", 3], ["Pick your island theme", 3], ["Draw your island from above", 5], ["Mark 3 zones to explore", 4], ["Mark where the secret coins hide", 5], ["Start the island on a Baseplate", 8]] },
+      17: { show: [["Look at your island map", 3], ["Copy trees and rocks from your old builds", 4, "Copying their own builds is a good habit"], ["Group each zone with Ctrl+G", 3]],
+            build: [["Shape the island ground", 5], ["Build zone 1", 5], ["Build zone 2", 5], ["Build zone 3", 5], ["Add trees, rocks and lights", 5], ["Pick day or night", 3]] },
+      18: { show: [["Drag in Coins from the kit", 3], ["Remember Value: 1, 5 or 10", 3, "Change numbers in edit mode, then press Play"], ["Invisible walls hide secrets", 4]],
+            build: [["Place 10 coins worth 1", 6], ["Place 3 coins worth 5", 5], ["Hide one 10 coin somewhere sneaky", 5], ["Build a secret room behind an invisible wall", 5], ["Add a Jump Pad up to a high coin", 4, "CharacterUseJumpPower ticked under StarterPlayer"], ["Add a You Win sign", 3]] } } },
+  race: { name: "Race Track", pitch: "A race course with ramps, jumps and hazards. Beat your best lap!", uses: "Race Day, Things That Move, Danger Zone", col: "#3fb6c9", icon: "race",
+    hunt: "Race 3 full laps",
+    m: { 17: ["Build the Track", "I can build my own race track", "Build a tunnel or a bridge"], 18: ["Turbo Time", "I can add ramps, jumps and hazards", "Put a trophy at the finish"] },
+    plan: {
+      16: { build: [["Name your game", 3], ["Pick a theme: city, desert, snow or space", 3], ["Draw your track from above", 6], ["Mark the ramps and shortcuts", 4], ["Mark the hazards", 4], ["Open the Racing template and save it with your game's name", 8, "The template gives working cars and a lap timer"]] },
+      17: { show: [["Look at your track drawing", 3], ["Copy track pieces with Ctrl+D", 3], ["Rotate pieces to make corners", 4]],
+            build: [["Lay the straight bits", 6], ["Add 2 corners", 6], ["Join the track into a loop", 5], ["Add a start and finish line", 4], ["Paint the track in your theme", 4], ["Drive one lap", 3]] },
+      18: { show: [["Copy and tilt a ramp", 3], ["Make a spinner with a hinge motor", 4, "MotorMaxTorque up, AngularVelocity 2 or less"], ["Add confetti from the kit", 3]],
+            build: [["Add 2 ramps", 5], ["Add a shortcut", 5], ["Add a big jump", 4], ["Add a spinning hazard", 6], ["Add cones and barriers", 4], ["Add a finish celebration", 4]] } } },
+  tower: { name: "Tower Climb", pitch: "A tall tower to climb floor by floor, with jump pads and moving platforms.", uses: "Trap Course, Things That Move, Power-Ups", col: "#8a6cff", icon: "tower",
+    hunt: "Climb all the way to the top",
+    m: { 17: ["Floors 1 and 2", "I can build upwards, floor by floor", "Add a secret window ledge"], 18: ["The Top Floor", "I can finish my tower", "Put a trophy at the top"] },
+    plan: {
+      16: { build: [["Name your game", 3], ["Pick a theme: castle, rocket, candy or jungle", 3], ["Draw your tower from the side", 5], ["Plan 3 floors: easy, medium, hard", 5], ["Mark the jump pads and traps", 4], ["Build the ground floor and spawn", 8]] },
+      17: { show: [["Build upwards: stack parts and Move them up", 3], ["Snap to grid keeps floors level", 3], ["A Jump Pad reaches the next floor", 4, "CharacterUseJumpPower ticked under StarterPlayer"]],
+            build: [["Build floor 1's platforms", 7], ["Add a Jump Pad up to floor 2", 4], ["Put a checkpoint on floor 2", 3, "Teams method from session 11"], ["Build floor 2's platforms", 6], ["Add a trap on floor 2", 4], ["Climb to floor 2", 4]] },
+      18: { show: [["Moving platform reminder", 4, "Servo slides once; use the kit's Back and Forth part"], ["Kill Bricks for anyone who falls", 3], ["Plan the very top", 3]],
+            build: [["Put a checkpoint on floor 3", 3], ["Build floor 3, the hardest", 7], ["Add a spinning or sliding platform", 6], ["Build the top with a finish pad", 4], ["Add confetti and a You Win sign", 4], ["Climb all the way up", 4]] } } },
+  maze: { name: "Maze Escape", pitch: "A maze full of ghost walls, secret doors and traps. Can players find the way out?", uses: "Switch It, Danger Zone, Save Point", col: "#2fa36b", icon: "maze",
+    hunt: "Escape your maze from the start",
+    m: { 17: ["Build the Maze", "I can build a maze from my plan", "Add a second way out"], 18: ["Secrets and Traps", "I can add tricks to my maze", "Put a trophy in the finish room"] },
+    plan: {
+      16: { build: [["Name your game", 3], ["Pick a theme: haunted house, jungle, ice cave or space base", 3], ["Draw your maze from above on squared paper", 6], ["Mark the way out", 3], ["Mark the ghost walls and secret doors", 5], ["Build the outside walls", 8]] },
+      17: { show: [["Copy a wall with Ctrl+D", 3], ["Snap to grid keeps walls lined up", 3], ["Group walls with Ctrl+G", 4]],
+            build: [["Build the first corridor", 5], ["Add 2 dead ends", 5], ["Build the middle of the maze", 6], ["Build the way out", 5], ["Make the walls tall so nobody jumps over", 3], ["Walk through it once", 4]] },
+      18: { show: [["Ghost wall: CanCollide off", 3], ["Invisible wall: Transparency 1", 3], ["Kill Brick reminder", 4]],
+            build: [["Add a ghost wall shortcut", 5], ["Add an invisible wall that blocks the way", 5], ["Add 2 Kill Brick traps", 4], ["Add a checkpoint halfway", 4, "Teams method from session 11"], ["Hide coins in the dead ends", 4], ["Build a finish room with confetti", 6]] } } }
+};
+const PATH_KEYS = Object.keys(PATHS);
+const pathOf = () => PATHS[state.path] ? state.path : "obby";
+const gkey = n => n >= 16 ? n + "-" + pathOf() : String(n);
+function missionOf(n) {
+  const base = MISSIONS[n - 1]; if (n < 16) return base;
+  const P = PATHS[pathOf()], o = P.m[n];
+  return Object.assign({}, base, o ? { name: o[0], goal: o[1], bonus: o[2] } : {}, { path: pathOf() });
+}
+const allMissions = () => MISSIONS.map(m => missionOf(m.n));
+function planFor(n) {
+  const base = PLAN[n]; if (n < 16) return base;
+  const P = PATHS[pathOf()], p = Object.assign({}, base, P.plan[n] || {});
+  if (n === 19) p.build = [[P.hunt, 6]].concat(base.build.slice(1));
+  return p;
+}
+const customOf = n => obj(state.custom[gkey(n)]);
+function stagesFor(n, all) {
+  const p = planFor(n), m = missionOf(n), c = customOf(n), ed = obj(c.edit), hide = obj(c.hide), extra = Array.isArray(c.extra) ? c.extra : [];
+  const build = p.build.map(g => mk(g, { core: true }));
+  build.splice(Math.ceil(build.length / 2), 0, mk(BREAK));
+  build.push(mk(["Bonus: " + m.bonus, 5, "Optional. Skip it if time's tight", "bonus"], { opt: true }));
+  const lists = [p.warm || STD.warm, p.show, null, p.test || STD.test, p.wrap || STD.wrap];
+  let idx = 0;
+  return lists.map((l, si) => {
+    let goals = si === 2 ? build : l.map(g => mk(g));
+    goals.forEach(g => { g.i = idx++; g.stage = si; });
+    extra.filter(x => x && x.stage === si).forEach(x => {
+      const g = { t: String(x.t || "New goal"), min: +x.min || 1, tip: "", kind: "", i: x.id, stage: si, custom: true, core: si === 2 };
+      if (si === 2) goals.splice(goals.length - 1, 0, g); else goals.push(g);
+    });
+    goals.forEach(g => { const e = ed[g.i]; if (e) { if (typeof e.t === "string" && e.t.trim()) g.t = e.t; if (+e.min > 0) g.min = +e.min; } g.hidden = !!hide[g.i]; });
+    if (!all) goals = goals.filter(g => !g.hidden);
+    return { name: STAGE_NAMES[si], at: STAGE_AT[si], goals, min: goals.reduce((a, g) => a + (g.opt || g.hidden ? 0 : g.min), 0) };
+  });
+}
+const goalsFlat = n => stagesFor(n).flatMap(s => s.goals);
+const findGoal = (n, id) => goalsFlat(n).find(g => g.i === id);
+
+const BOSSES = {
+  5:  { name: "The Grey Blob", line: "I turned the whole level boring grey. Remix it to beat me!", col: "#8fa3aa", extra: "drip" },
+  10: { name: "Captain Trapjaw", line: "Nobody gets past my traps! Build a course that's fair but tricky.", col: "#ff6a3d", extra: "teeth" },
+  15: { name: "The Glitch King", line: "I scrambled every skill you know. Use them all at once!", col: "#8a6cff", extra: "crown" },
+  20: { name: "Launch Dragon", line: "Your game stays secret unless you can launch it past me!", col: "#2fa36b", extra: "horns" }
+};
+
+const ROUTINE = [
+  { name: "Warm-up", min: 5, at: "0–5", d: "Play last session's build, look at the mission card" },
+  { name: "Show me", min: 10, at: "5–15", d: "Watch the skill, then copy it straight away" },
+  { name: "Build time", min: 30, at: "15–45", d: "Work through the mission card, break halfway" },
+  { name: "Play test", min: 10, at: "45–55", d: "Both play it: one wow, one what if" },
+  { name: "Win and wrap", min: 5, at: "55–60", d: "XP, badge sticker, save the file" }
+];
+const BREAK_AFTER = 10 * 60; // seconds into Build time
+const BREAK_LEN = 2 * 60;
+
+const POS = [
+  [70,380],[140,300],[110,210],[200,150],[290,210],
+  [400,330],[460,250],[420,160],[510,110],[590,170],[560,270],[620,360],[700,300],[680,200],[760,130],
+  [840,210],[900,290],[850,370],[930,420],[880,120]
+];
+const ISLANDS = [
+  {cx:185,cy:270,rx:175,ry:190,name:"Template Island",sub:"Sessions 1–5",lx:185,ly:470},
+  {cx:570,cy:240,rx:230,ry:210,name:"Build Bay",sub:"Sessions 6–15",lx:560,ly:478},
+  {cx:885,cy:270,rx:110,ry:210,name:"Creator Peak",sub:"Sessions 16–20",lx:885,ly:500}
+];
+const REWARD_STEP = 50;
+const RANKS = [[0,"Builder in training"],[5,"Apprentice Builder"],[15,"Master Builder"],[20,"Game Creator"]];
+
+let state = blank();
+let selected = 1;
+let tab = "mission";
+let store = null, lsOK = false, saveTimer = null, inflight = false, again = false, confirming = false;
+
+function blank() { return { name: "", done: {}, log: [], goals: {}, notes: {}, bugs: 0, bugLog: {}, rewards: [], path: "", custom: {} }; }
+const xpTotal = () => state.log.reduce((a, e) => a + e.pts, 0);
+const doneCount = () => MISSIONS.filter(m => state.done[m.n]).length;
+function nextStone() { for (const m of MISSIONS) if (!state.done[m.n]) return m.n; return null; }
+function rank() { let r = RANKS[0][1]; for (const [need, t] of RANKS) if (need === 0 || state.done[need]) r = t; return r; }
+const phaseOf = n => n <= 5 ? 1 : n <= 15 ? 2 : 3;
+const PHASES = { 1: "Phase 1 · Make it mine", 2: "Phase 2 · Build and switch on", 3: "Phase 3 · My first game" };
+const goalsOf = n => { const a = state.goals[gkey(n)], o = {}; if (a && typeof a === "object") for (const k in a) if (a[k] === 1 || a[k] === 2) o[k] = a[k]; return o; };
+const goalsSmashed = () => Object.keys(state.goals).reduce((t, k) => t + Object.values(state.goals[k] || {}).filter(v => v === 1).length, 0);
+function curGoal(n) { const a = goalsOf(n); return goalsFlat(n).find(g => !a[g.i]) || null; }
+function minsLeft(n) { const a = goalsOf(n); return goalsFlat(n).filter(g => !a[g.i] && !g.opt).reduce((t, g) => t + g.min, 0); }
+function coreLeft(n) { const a = goalsOf(n); return stagesFor(n)[2].goals.filter(g => g.core && !a[g.i]).length; }
+const noteOf = n => state.notes[n] || {};
+
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function h(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+/* ---------- tabs ---------- */
+function setTab(t) {
+  tab = t;
+  ["mission","map","badges","grownups"].forEach(k => { $("view-" + k).hidden = k !== t; $("tab-" + k).setAttribute("aria-selected", k === t); });
+  try { localStorage.setItem("bq-tab", t); } catch (e) {}
+  renderAll();
+}
+document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+
+/* ---------- header ---------- */
+function drawTop() {
+  const xp = xpTotal();
+  $("s-xp").textContent = xp;
+  $("s-stones").textContent = doneCount() + "/20";
+  $("s-goals").textContent = goalsSmashed();
+  $("s-bugs").textContent = state.bugs || 0;
+  $("rank").textContent = rank();
+  if (document.activeElement !== $("bname")) $("bname").value = state.name || "";
+  const maxXP = Math.max(REWARD_STEP * 8, Math.ceil((xp + 1) / REWARD_STEP) * REWARD_STEP);
+  $("xpnum").textContent = xp + " XP";
+  const toNext = REWARD_STEP - (xp % REWARD_STEP);
+  const nextName = (state.rewards[Math.floor(xp / REWARD_STEP)] || "").trim();
+  $("xpnext").textContent = toNext + " XP to the next reward" + (nextName ? ": " + nextName : "");
+  $("fill").style.width = Math.min(100, xp / maxXP * 100) + "%";
+  const bar = $("bar"); bar.querySelectorAll(".tick").forEach(t => t.remove());
+  for (let v = REWARD_STEP; v < maxXP; v += REWARD_STEP) {
+    const t = h("div", "tick" + (xp >= v ? " got" : "")); t.style.left = (v / maxXP * 100) + "%"; bar.appendChild(t);
+  }
+}
+
+/* ---------- mission view ---------- */
+function drawMission() {
+  const m = missionOf(selected);
+  $("m-eyebrow").textContent = `Session ${m.n} of 20 · ${PHASES[phaseOf(m.n)]}`;
+  $("m-name").textContent = m.name;
+  $("m-goal").textContent = "“" + m.goal + "”";
+  const meta = $("m-meta"); meta.innerHTML = "";
+  if (m.boss) meta.appendChild(h("span", "pill boss", "Boss level"));
+  meta.appendChild(h("span", "pill badge", "Badge: " + m.badge));
+  if (state.done[m.n]) meta.appendChild(h("span", "pill done", "Complete"));
+  $("m-prev").disabled = m.n === 1; $("m-next").disabled = m.n === 20;
+
+  const choosing = m.n >= 16 && !state.path;
+  $("chooser").hidden = !choosing; $("qcard").hidden = choosing;
+  if (choosing) {
+    const ch = $("choices"); ch.innerHTML = "";
+    PATH_KEYS.forEach(k => {
+      const P = PATHS[k], b = h("button", "choice"); b.id = "pick-" + k;
+      b.insertAdjacentHTML("beforeend", gameIcon(k));
+      const t = h("div"); t.append(h("b", null, P.name), h("span", null, P.pitch), h("small", null, "Uses: " + P.uses));
+      b.appendChild(t); b.onclick = () => pickPath(k, false); ch.appendChild(b);
+    });
+  }
+  if (m.n >= 16 && state.path) { const c = h("span", "gamechip", PATHS[state.path].name); c.style.background = PATHS[state.path].col; c.style.color = "var(--ink)"; meta.appendChild(c); }
+
+  // boss: health = core Build time goals left
+  const bb = $("bossbox"); bb.innerHTML = "";
+  const a = goalsOf(m.n), stages = stagesFor(m.n), cur = curGoal(m.n);
+  if (m.boss) {
+    const B = BOSSES[m.n], total = stages[2].goals.filter(g => g.core).length, left = coreLeft(m.n);
+    const box = h("div", "bossbox");
+    box.appendChild(bossSVG(B, left === 0));
+    const info = h("div");
+    info.appendChild(h("p", "eyebrow", "Boss level")).style.color = "var(--sand)";
+    info.appendChild(h("h4", null, left === 0 ? B.name + " is beaten!" : B.name));
+    info.appendChild(h("p", null, left === 0 ? "Amazing building. Claim your boss XP in Win and wrap." : B.line));
+    const hp = h("div", "hp"); const bar = h("i"); bar.style.width = (left / total * 100) + "%"; hp.appendChild(bar);
+    info.appendChild(hp);
+    info.appendChild(h("div", "hpl", `Boss health ${left}/${total} · every Build time goal hits it`));
+    box.appendChild(info); bb.appendChild(box);
+  }
+
+  // quest path
+  const all = goalsFlat(m.n), req = all.filter(g => !g.opt);
+  const doneReq = req.filter(g => a[g.i]).length;
+  $("q-bar").style.width = (doneReq / req.length * 100) + "%";
+  const ml = minsLeft(m.n);
+  $("q-left").textContent = ml ? `About ${ml} min of goals left` : "All goals done!";
+  const ol = $("qstages"); ol.innerHTML = "";
+  stages.forEach((st, si) => {
+    const sd = st.goals.filter(g => a[g.i]).length, isNow = cur && cur.stage === si, ok = sd === st.goals.length;
+    const locked = !ok && !isNow && cur && si > cur.stage;
+    const li = h("li", "qstage" + (isNow ? " now" : ok ? " ok" : locked ? " locked" : ""));
+    const top = h("div", "qs-top"), nm = h("div", "qs-name");
+    if (locked) nm.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="9" width="14" height="10" rx="2" fill="#5d7880"/><path d="M6 9V6a4 4 0 0 1 8 0v3" stroke="#5d7880" stroke-width="2.5" fill="none"/></svg>');
+    else if (ok) nm.appendChild(h("span", null, "✓"));
+    nm.appendChild(h("span", null, st.name));
+    const req = st.goals.filter(g => !g.opt).length;
+    top.append(nm, h("span", "qs-meta", `${Math.min(sd, req)}/${req} goals · about ${st.min} min · ${st.at}`));
+    li.appendChild(top);
+    if (isNow) {
+      const gl = h("ol", "qgoals");
+      st.goals.filter(g => a[g.i]).forEach(g => gl.appendChild(goalRow(m.n, g, a[g.i])));
+      if (gl.children.length) li.appendChild(gl);
+      li.appendChild(curCard(m.n, cur));
+      const rest = st.goals.filter(g => !a[g.i] && g.i !== cur.i);
+      if (rest.length) {
+        const lk = h("div", "qlock"); lk.appendChild(h("span", "q", "?"));
+        lk.appendChild(h("span", null, rest.length === 1 ? "1 more secret goal in this stage" : `${rest.length} more secret goals in this stage`));
+        li.appendChild(lk);
+      }
+    } else if (sd) {
+      const gl = h("ol", "qgoals"); st.goals.forEach(g => gl.appendChild(goalRow(m.n, g, a[g.i]))); li.appendChild(gl);
+    }
+    ol.appendChild(li);
+  });
+  if (!cur) ol.appendChild(h("li", "allclear", "Every goal smashed! What a session."));
+
+
+  // xp buttons
+  const earned = state.log.filter(e => e.s === m.n);
+  const has = k => earned.some(e => e.kind === k);
+  const xb = $("xpbtns"); xb.innerHTML = "";
+  const add = (cls, label, kind, pts, lbl, completes) => {
+    const b = h("button", cls, has(kind) ? "✓ " + label : label); b.disabled = has(kind);
+    b.onclick = () => award(m.n, kind, pts, lbl, completes); xb.appendChild(b);
+  };
+  add("go", "Mission done · +10 XP", "core", 10, "Mission done", true);
+  if (m.boss) add("hot", "Boss beaten · +15 XP", "boss", 15, "Boss beaten", false);
+  add("gold", "Bonus challenge · +5", "bonus", 5, "Bonus challenge", false);
+  add("", "Great focus · +5", "focus", 5, "Great focus", false);
+  add("", "Tried again after a bug · +5", "retry", 5, "Tried again after a bug", false);
+  const shot = !!noteOf(m.n).shot;
+  const sb = h("button", "", shot ? "✓ Screenshot in My Builds" : "Screenshot saved to My Builds");
+  sb.setAttribute("aria-pressed", shot); if (shot) sb.style.background = "#dff3de";
+  sb.onclick = () => { setNote(m.n, "shot", !shot, true); if (!shot) { toast("Show-off moment saved!"); burst(40); } };
+  xb.appendChild(sb);
+  $("bugminus").disabled = !(state.bugLog[m.n] > 0);
+  const log = $("slog"); log.innerHTML = "";
+  earned.forEach(e => {
+    const li = h("li"), r = h("span", "row"); r.style.gap = "10px";
+    const x = h("button", "small", "Take away"); x.style.padding = "4px 10px"; x.setAttribute("aria-label", "Take away " + e.label);
+    x.onclick = () => removeAward(e);
+    r.append(h("span", null, "+" + e.pts + " XP"), x); li.append(h("span", null, e.label), r); log.appendChild(li);
+  });
+  drawTimer();
+}
+
+function gameIcon(k) {
+  const c = PATHS[k].col, ink = "#16323b";
+  const art = {
+    obby: `<rect x="4" y="44" width="16" height="8" rx="2"/><rect x="24" y="32" width="16" height="8" rx="2"/><rect x="44" y="20" width="16" height="8" rx="2"/><path d="M52 20V6l8 4-8 4" fill="#fff"/>`,
+    coins: `<circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="14" fill="#ffe7a8"/><path d="M32 22v20M27 27h8a3 3 0 0 1 0 6h-6a3 3 0 0 0 0 6h8" fill="none"/>`,
+    race: `<path d="M14 8v50" fill="none"/><path d="M14 10h36v24H14z" fill="#fff"/><path d="M14 10h9v8h-9zM32 10h9v8h-9zM23 18h9v8h-9zM41 18h9v8h-9zM14 26h9v8h-9zM32 26h9v8h-9z"/>`,
+    tower: `<path d="M20 58V18h24v40z"/><path d="M16 18h32l-4-10H20z" fill="#fff"/><rect x="28" y="44" width="8" height="14" rx="4" fill="#fff"/><rect x="27" y="26" width="10" height="8" rx="2" fill="#fff"/>`,
+    maze: `<rect x="6" y="6" width="52" height="52" rx="6" fill="#fff"/><path d="M6 20h30M20 34h38M6 46h22M36 46v12M36 6v14M20 20v14" fill="none" stroke-width="5"/><circle cx="48" cy="52" r="4" fill="${c}"/>`
+  }[k];
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="${c}" stroke="${ink}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">${art}</g></svg>`;
+}
+function bossSVG(B, beaten) {
+  const svg = el("svg", { viewBox: "0 0 130 120", "aria-hidden": "true", id: "bossart" });
+  const g = el("g", {}, svg);
+  if (B.extra === "crown") el("path", { d: "M42 22 L50 6 L58 20 L65 4 L72 20 L80 6 L88 22 Z", fill: "#ffb321", stroke: "#16323b", "stroke-width": 3, "stroke-linejoin": "round" }, g);
+  if (B.extra === "horns") { el("path", { d: "M38 34 Q28 12 40 8 Q42 22 50 28 Z", fill: "#ffe7a8", stroke: "#16323b", "stroke-width": 3 }, g); el("path", { d: "M92 34 Q102 12 90 8 Q88 22 80 28 Z", fill: "#ffe7a8", stroke: "#16323b", "stroke-width": 3 }, g); }
+  el("path", { d: "M20 100 Q14 40 65 22 Q116 40 110 100 Q100 112 88 104 Q76 114 65 104 Q54 114 42 104 Q30 112 20 100 Z", fill: B.col, stroke: "#16323b", "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  if (B.extra === "drip") { el("circle", { cx: 32, cy: 112, r: 4, fill: B.col, stroke: "#16323b", "stroke-width": 2 }, g); el("circle", { cx: 100, cy: 114, r: 3, fill: B.col, stroke: "#16323b", "stroke-width": 2 }, g); }
+  if (beaten) {
+    [[48,56],[82,56]].forEach(([x,y]) => { el("path", { d: `M${x-8} ${y-8} L${x+8} ${y+8} M${x+8} ${y-8} L${x-8} ${y+8}`, stroke: "#16323b", "stroke-width": 5, "stroke-linecap": "round" }, g); });
+    el("path", { d: "M48 86 Q65 76 82 86", fill: "none", stroke: "#16323b", "stroke-width": 4, "stroke-linecap": "round" }, g);
+  } else {
+    [[48,56],[82,56]].forEach(([x,y]) => { el("circle", { cx: x, cy: y, r: 12, fill: "#fff", stroke: "#16323b", "stroke-width": 3 }, g); el("circle", { cx: x + 2, cy: y + 2, r: 5, fill: "#16323b" }, g); });
+    el("path", { d: "M36 40 L58 48 M94 40 L72 48", stroke: "#16323b", "stroke-width": 5, "stroke-linecap": "round" }, g);
+    el("path", { d: "M44 80 Q65 96 86 80 Z", fill: "#16323b" }, g);
+    if (B.extra === "teeth") el("path", { d: "M50 82 L54 89 L58 84 L62 91 L66 85 L70 91 L74 84 L78 89 L82 82", fill: "#fff", stroke: "#fff", "stroke-width": 1 }, g);
+  }
+  return svg;
+}
+
+const PRAISE = ["Goal smashed!", "Nice one!", "Brilliant!", "You did it!", "Great building!", "Superstar!"];
+function goalRow(n, g, v) {
+  const li = h("li", "qg" + (v === 1 ? " done" : v === 2 ? " skip" : ""));
+  const b = h("button", "chk", v === 1 ? "✓" : v === 2 ? "–" : ""); b.setAttribute("aria-pressed", !!v);
+  b.setAttribute("aria-label", (v ? "Undo: " : "Done: ") + g.t);
+  b.onclick = () => setGoal(n, g.i, v ? 0 : 1);
+  const t = h("span", "gt", v === 2 ? g.t + " (skipped)" : g.t); t.style.minWidth = "0";
+  li.append(b, t, h("span", "mins", g.min + " min"));
+  return li;
+}
+function curCard(n, g) {
+  const all = goalsFlat(n), d = h("div", "qcur");
+  const lbl = h("div", "lbl"); lbl.appendChild(h("span", null, `Goal ${all.indexOf(g) + 1} of ${all.length}`));
+  lbl.appendChild(h("span", null, `About ${g.min} min`)); if (g.opt) lbl.appendChild(h("span", "opt", "Optional"));
+  d.appendChild(lbl);
+  d.appendChild(h("div", "gt", g.t));
+  if (g.tip) d.appendChild(h("p", "tip", "Grown-up tip: " + g.tip));
+  const row = h("div", "row");
+  const go = h("button", "go", g.kind === "break" ? "Start the break" : "Done!");
+  go.onclick = () => g.kind === "break" ? startBreak(n, g.i) : setGoal(n, g.i, 1);
+  const sk = h("button", "small", g.opt ? "Skip the bonus" : "Skip for now"); sk.onclick = () => setGoal(n, g.i, 2);
+  row.append(go, sk);
+  const a = goalsOf(n), last = goalsFlat(n).filter(x => a[x.i]).pop();
+  if (last) { const bk = h("button", "small", "Go back a goal"); bk.onclick = () => setGoal(n, last.i, 0); row.appendChild(bk); }
+  d.appendChild(row);
+  return d;
+}
+function setGoal(n, i, v) {
+  const a = goalsOf(n), g = findGoal(n, i), st = stagesFor(n)[g.stage], m = missionOf(n);
+  if (v) a[i] = v; else delete a[i]; state.goals[gkey(n)] = a;
+  if (v && !noteOf(n).date) state.notes[n] = Object.assign({}, noteOf(n), { date: new Date().toISOString().slice(0, 10) });
+  const stageDone = st.goals.every(x => a[x.i]);
+  const allDone = goalsFlat(n).every(x => x.opt || a[x.i]);
+  if (stageDone && T.part === g.stage && g.stage < 4) { const was = T.running; setPart(g.stage + 1); if (was) startTimer(); }
+  save(); renderAll();
+  if (!v) { toast("Goal back on the list"); return; }
+  if (v === 2) { toast("Skipped. No worries!"); return; }
+  blip(600 + (i % 6) * 90);
+  if (m.boss && g.core) { const art = $("bossart"); if (art && !reduced()) { art.classList.remove("shake"); void art.getBoundingClientRect(); art.classList.add("shake"); } }
+  if (allDone && goalsFlat(n).filter(x => !x.opt).every(x => a[x.i]) && g.stage === 4) { toast("Every goal smashed!"); burst(160); fanfare(); }
+  else if (m.boss && g.core && coreLeft(n) === 0) { toast(BOSSES[n].name + " is beaten!"); burst(160); fanfare(); }
+  else if (stageDone) { toast(st.name + " complete!"); burst(90); chime(); }
+  else if (m.boss && g.core) { toast("Pow! Boss health " + coreLeft(n)); burst(30); }
+  else { toast(PRAISE[(goalsSmashed() + i) % PRAISE.length]); burst(26); }
+}
+
+$("m-prev").onclick = () => { if (selected > 1) { selected--; renderAll(); } };
+$("m-next").onclick = () => { if (selected < 20) { selected++; renderAll(); } };
+
+/* ---------- timer ---------- */
+const T = { part: 0, left: ROUTINE[0].min * 60, total: ROUTINE[0].min * 60, running: false, last: 0, iv: null, buildEl: 0, breakDone: false, onBreak: false, brLeft: BREAK_LEN, sound: true };
+let wake = null;
+const fmt = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+function drawTimer() {
+  $("t-part").textContent = ROUTINE[T.part].name;
+  $("t-clock").textContent = fmt(T.left);
+  $("t-clock").classList.toggle("low", T.left <= 60 && T.left > 0);
+  $("t-ring").style.width = (100 - T.left / T.total * 100) + "%";
+  $("t-go").textContent = T.running ? "Pause" : (T.left < T.total ? "Carry on" : "Start");
+  $("t-go").className = T.running ? "gold" : "go";
+  $("t-skip").disabled = T.part === ROUTINE.length - 1 && T.left <= 0;
+  $("t-sound").textContent = T.sound ? "Sound on" : "Sound off"; $("t-sound").setAttribute("aria-pressed", T.sound);
+}
+function loop() {
+  const now = Date.now(), dt = (now - T.last) / 1000; T.last = now;
+  if (T.onBreak) {
+    T.brLeft -= dt; $("br-clock").textContent = fmt(T.brLeft);
+    if (T.brLeft <= 0) { T.brLeft = 0; $("br-clock").textContent = "Done!"; }
+    return;
+  }
+  if (!T.running) return;
+  T.left -= dt;
+  if (T.part === 2) { T.buildEl += dt; if (!T.breakDone && T.buildEl >= BREAK_AFTER) { const bg = stagesFor(selected)[2].goals.find(g => g.kind === "break"); if (bg && !goalsOf(selected)[bg.i]) startBreak(selected, bg.i); else T.breakDone = true; } }
+  if (T.left <= 0) partEnd();
+  drawTimer();
+}
+function ensureLoop() { if (!T.iv) { T.last = Date.now(); T.iv = setInterval(loop, 250); } }
+function startTimer() { T.running = true; T.last = Date.now(); ensureLoop(); unlockAudio(); try { navigator.wakeLock && navigator.wakeLock.request("screen").then(w => wake = w).catch(() => {}); } catch (e) {} }
+function pauseTimer() { T.running = false; try { wake && wake.release(); } catch (e) {} wake = null; }
+function setPart(i) { T.part = i; T.total = T.left = ROUTINE[i].min * 60; if (i !== 2) { T.buildEl = 0; } drawMission(); }
+function partEnd() {
+  chime();
+  if (T.part < ROUTINE.length - 1) { const nx = T.part + 1; pauseTimer(); setPart(nx); toast("Time for " + ROUTINE[nx].name + "!"); }
+  else { pauseTimer(); T.left = 0; drawMission(); toast("That's the hour. Brilliant work!"); burst(100); }
+}
+function jumpPart(i) { pauseTimer(); setPart(i); }
+$("t-go").onclick = () => { if (T.running) pauseTimer(); else { if (T.left <= 0) setPart(0); startTimer(); } drawTimer(); };
+$("t-plus").onclick = () => { T.left += 60; T.total = Math.max(T.total, T.left); drawTimer(); };
+$("t-skip").onclick = () => { const was = T.running; if (T.part < ROUTINE.length - 1) { setPart(T.part + 1); if (was) startTimer(); } else { pauseTimer(); T.left = 0; } renderAll(); };
+$("t-sound").onclick = () => { T.sound = !T.sound; if (T.sound) unlockAudio(); drawTimer(); };
+$("t-break").onclick = () => startBreak();
+function startBreak(n, i) { T.brGoal = n ? { n, i } : null; T.onBreak = true; T.breakDone = true; T.brLeft = BREAK_LEN; $("br-clock").textContent = fmt(T.brLeft); $("breakov").hidden = false; ensureLoop(); chime(); $("br-done").focus(); }
+$("br-done").onclick = () => { T.onBreak = false; $("breakov").hidden = true; T.last = Date.now(); const bg = T.brGoal; T.brGoal = null; if (bg) setGoal(bg.n, bg.i, 1); else toast("Back to building!"); };
+
+/* ---------- sound ---------- */
+let actx = null;
+function unlockAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch (e) { actx = null; } }
+function tone(f, start, dur, vol) { if (!actx || !T.sound) return; const o = actx.createOscillator(), g = actx.createGain(); o.type = "triangle"; o.frequency.value = f; g.gain.setValueAtTime(0, actx.currentTime + start); g.gain.linearRampToValueAtTime(vol, actx.currentTime + start + .02); g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + start + dur); o.connect(g).connect(actx.destination); o.start(actx.currentTime + start); o.stop(actx.currentTime + start + dur + .05); }
+function blip(f) { unlockAudio(); tone(f, 0, .18, .18); }
+function chime() { unlockAudio(); [784, 988, 1175].forEach((f, i) => tone(f, i * .18, .5, .2)); }
+function fanfare() { unlockAudio(); [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .12, i === 3 ? .7 : .25, .2)); }
+
+/* ---------- XP ---------- */
+function award(n, kind, pts, label, completes) {
+  const before = xpTotal();
+  state.log.push({ s: n, kind, pts, label, at: new Date().toISOString().slice(0, 10) });
+  let msg = `+${pts} XP!`;
+  if (!noteOf(n).date) setNote(n, "date", new Date().toISOString().slice(0, 10), false);
+  if (completes && !state.done[n]) {
+    state.done[n] = true;
+    const m = missionOf(n);
+    msg = `${m.badge} badge unlocked!`;
+    if ([5, 15, 20].includes(n)) msg = `New title: ${m.badge}!`;
+  }
+  if (kind === "boss") msg = "Boss beaten! +15 XP";
+  if (Math.floor(xpTotal() / REWARD_STEP) > Math.floor(before / REWARD_STEP)) {
+    const rn = (state.rewards[Math.floor(before / REWARD_STEP)] || "").trim();
+    msg = "Reward unlocked" + (rn ? ": " + rn : "") + "! " + msg;
+  }
+  save(); renderAll(); toast(msg); burst(completes || kind === "boss" ? 150 : 50); completes || kind === "boss" ? fanfare() : blip(880);
+}
+function undo() {
+  const e = state.log.pop(); if (!e) return;
+  if (e.kind === "core") delete state.done[e.s];
+  save(); renderAll(); toast("Undone");
+}
+$("bugminus").onclick = () => {
+  if (!(state.bugLog[selected] > 0)) return;
+  state.bugLog[selected]--; state.bugs = Math.max(0, (state.bugs || 0) - 1);
+  save(); renderAll(); toast("Bug count back to " + state.bugs);
+};
+function removeAward(e) {
+  const k = state.log.indexOf(e); if (k < 0) return;
+  state.log.splice(k, 1);
+  if (e.kind === "core") delete state.done[e.s];
+  save(); renderAll(); toast("Took away " + e.label + " (" + e.pts + " XP)");
+}
+function resetSession(n) {
+  state.log = state.log.filter(e => e.s !== n);
+  delete state.done[n]; delete state.goals[gkey(n)];
+  state.bugs = Math.max(0, (state.bugs || 0) - (state.bugLog[n] || 0)); delete state.bugLog[n];
+  if (state.notes[n]) { const nt = Object.assign({}, state.notes[n]); delete nt.shot; state.notes[n] = nt; }
+  save(0); renderAll(); toast("Session " + n + " reset");
+}
+$("bug").onclick = () => {
+  state.bugs = (state.bugs || 0) + 1;
+  state.bugLog[selected] = (state.bugLog[selected] || 0) + 1;
+  save(); renderAll(); blip(330); toast(["Splat!", "Squashed!", "Bug gone!", "Nice fix!"][state.bugs % 4] + " " + state.bugs + " bugs squashed"); burst(20);
+};
+
+/* ---------- map ---------- */
+function drawMap() {
+  const svg = $("map"); svg.innerHTML = "";
+  ISLANDS.forEach(i => {
+    el("ellipse", {cx:i.cx, cy:i.cy+8, rx:i.rx+14, ry:i.ry+12, fill:"#ffe7a8"}, svg);
+    el("ellipse", {cx:i.cx, cy:i.cy, rx:i.rx, ry:i.ry, fill:"#5cc15a"}, svg);
+    el("ellipse", {cx:i.cx-i.rx*0.3, cy:i.cy-i.ry*0.35, rx:i.rx*0.35, ry:i.ry*0.2, fill:"#6fd26c"}, svg);
+  });
+  const d = POS.slice(0,19).map((p,i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
+  el("path", {d, fill:"none", stroke:"#fffdf6", "stroke-width":6, "stroke-dasharray":"2 16", "stroke-linecap":"round", opacity:.85}, svg);
+  el("path", {d:`M${POS[18][0]} ${POS[18][1]} Q 980 260 ${POS[19][0]} ${POS[19][1]}`, fill:"none", stroke:"#fffdf6", "stroke-width":6, "stroke-dasharray":"2 16", "stroke-linecap":"round", opacity:.85}, svg);
+  ISLANDS.forEach(i => {
+    el("text", {x:i.lx, y:i.ly-18, class:"isle-label"}, svg).textContent = i.name;
+    el("text", {x:i.lx, y:i.ly+2, class:"isle-sub"}, svg).textContent = i.name === "Creator Peak" && state.path ? PATHS[state.path].name : i.sub;
+  });
+  const nxt = nextStone();
+  allMissions().forEach((m, idx) => {
+    const [x, y] = POS[idx];
+    const cls = ["stone"]; if (state.done[m.n]) cls.push("done"); if (m.boss) cls.push("boss"); if (m.n === nxt) cls.push("next"); if (m.n === selected) cls.push("sel");
+    const g = el("g", {class: cls.join(" "), tabindex: 0, role: "button",
+      "aria-label": `Session ${m.n}: ${m.name}${state.done[m.n] ? ", complete" : ""}${m.boss ? ", boss level" : ""}`}, svg);
+    if (m.n === nxt) el("circle", {cx:x, cy:y, r:30, class:"halo"}, g);
+    el("circle", {cx:x, cy:y, r: m.boss ? 30 : 25, class:"base"}, g);
+    el("text", {x, y, class:"numt"}, g).textContent = state.done[m.n] ? "★" : m.n;
+    if (m.boss) el("text", {x, y: y - (m.n===20?44:42), class:"numt", style:"font-size:14px;fill:#fffdf6"}, g).textContent = "BOSS";
+    g.addEventListener("click", () => { selected = m.n; renderAll(); });
+    g.addEventListener("dblclick", () => { selected = m.n; setTab("mission"); });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selected = m.n; renderAll(); } });
+  });
+  const m = missionOf(selected), box = $("mapinfo"); box.innerHTML = "";
+  const left = h("div"); left.style.minWidth = "0";
+  left.appendChild(h("p", "eyebrow", `Session ${m.n} · ${PHASES[phaseOf(m.n)]}`));
+  left.appendChild(h("h2", null, m.name));
+  left.appendChild(h("p", "goal", "“" + m.goal + "”"));
+  const ga = goalsOf(m.n), gl = goalsFlat(m.n).filter(g => !g.opt);
+  const dots = h("div", "dots"); stagesFor(m.n).forEach(st => { const sg = st.goals.filter(g => !g.opt); dots.appendChild(h("span", "dot" + (sg.every(g => ga[g.i]) ? " on" : ""))); });
+  dots.appendChild(h("span", null, `${gl.filter(g => ga[g.i] === 1).length}/${gl.length} goals · about 60 min · Badge: ${m.badge}${m.boss ? " · Boss level" : ""}${state.done[m.n] ? " · Complete" : ""}`));
+  left.appendChild(dots);
+  const go = h("button", "go", "Open this mission"); go.onclick = () => setTab("mission");
+  box.append(left, go);
+}
+
+/* ---------- badges ---------- */
+function drawBadges() {
+  const tl = $("titles"); tl.innerHTML = "";
+  [[5,"Apprentice Builder","Beat the session 5 boss"],[15,"Master Builder","Beat the session 15 boss"],[20,"Game Creator","Launch your game"]].forEach(([n,t,how]) => {
+    const d = h("div", "ttl" + (state.done[n] ? " got" : "")); d.append(h("b", null, t), h("span", null, state.done[n] ? "Unlocked!" : how)); tl.appendChild(d);
+  });
+  const g = $("badges"); g.innerHTML = "";
+  allMissions().forEach(m => {
+    const d = h("div", "bdg p" + phaseOf(m.n) + (state.done[m.n] ? " got" : "") + (m.boss ? " boss" : ""));
+    d.appendChild(h("div", "medal", state.done[m.n] ? "★" : m.n)); d.appendChild(h("span", null, m.badge)); g.appendChild(d);
+  });
+  const xp = xpTotal(), ul = $("rewards"); ul.innerHTML = "";
+  const shown = Math.max(4, Math.floor(xp / REWARD_STEP) + 1);
+  for (let i = 1; i <= shown; i++) {
+    const got = xp >= i * REWARD_STEP, li = h("li", got ? "got" : "");
+    const nm = (state.rewards[i - 1] || "").trim();
+    const txt = h("span"); txt.textContent = nm || "Reward " + i; txt.appendChild(document.createTextNode(" "));
+    txt.appendChild(h("small", null, i * REWARD_STEP + " XP"));
+    li.append(h("span", "rbox", got ? "✓" : ""), txt); ul.appendChild(li);
+  }
+}
+
+/* ---------- grown-ups ---------- */
+const CORE = { yes: ["Yes","yes"], help: ["With help","help"], not: ["Not yet","not"] };
+function setNote(n, k, v, rerender) { state.notes[n] = Object.assign({}, noteOf(n), { [k]: v }); save(rerender ? 0 : 900); if (rerender) renderAll(); }
+function setVal(id, v) { const e = $(id); if (document.activeElement !== e) e.value = v == null ? "" : v; }
+$("p-prev").onclick = () => { if (selected > 1) { selected--; renderAll(); } };
+$("p-next").onclick = () => { if (selected < 20) { selected++; renderAll(); } };
+let editing = false;
+function drawPlan(m) {
+  $("p-title").textContent = `Session ${m.n}: ${m.name}${m.boss ? " (boss level)" : ""}`;
+  const all = goalsFlat(m.n), tot = stagesFor(m.n).reduce((t, s) => t + s.min, 0);
+  $("p-sub").textContent = `“${m.goal}” · Badge: ${m.badge} · ${all.filter(g => !g.opt).length} goals, about ${tot} min.` + (m.n >= 16 ? ` Game: ${PATHS[pathOf()].name}${state.path ? "" : " (not picked yet)"}.` : "");
+  const tools = $("p-tools"); tools.innerHTML = "";
+  const eb = h("button", "small", editing ? "Done editing" : "Edit goals"); eb.setAttribute("aria-pressed", editing);
+  eb.onclick = () => { editing = !editing; renderAll(); }; tools.appendChild(eb);
+  if (editing && Object.keys(customOf(m.n)).length) {
+    const rb = h("button", "small", "Put this session back to default"); rb.onclick = () => { delete state.custom[gkey(m.n)]; save(0); renderAll(); toast("Back to the default plan"); }; tools.appendChild(rb);
+  }
+  const lab = h("label", "gamepick"); lab.appendChild(h("span", null, "Game for sessions 16–20"));
+  const sel = h("select"); sel.id = "p-game";
+  sel.appendChild(Object.assign(h("option", null, "Not picked yet"), { value: "" }));
+  PATH_KEYS.forEach(k => sel.appendChild(Object.assign(h("option", null, PATHS[k].name), { value: k })));
+  sel.value = state.path || ""; sel.onchange = () => pickPath(sel.value, true);
+  lab.appendChild(sel); tools.appendChild(lab);
+  const box = $("plan"), a = goalsOf(m.n); box.innerHTML = "";
+  stagesFor(m.n, editing).forEach((st, si) => {
+    const sec = h("div"), hd = h("h4", null, st.name); hd.appendChild(h("span", null, `${st.at} min · about ${st.min} min`)); sec.appendChild(hd);
+    const ol = h("ol");
+    st.goals.forEach(g => {
+      const li = h("li", "pg" + (g.hidden ? " hid" : "")), b = h("button", "chk", a[g.i] === 1 ? "✓" : a[g.i] === 2 ? "–" : "");
+      b.setAttribute("aria-pressed", !!a[g.i]); b.setAttribute("aria-label", (a[g.i] ? "Untick: " : "Tick: ") + g.t);
+      b.onclick = () => setGoal(m.n, g.i, a[g.i] ? 0 : 1); b.disabled = g.hidden;
+      const t = h("div"); t.style.minWidth = "0";
+      if (editing && !g.opt && g.kind !== "break") {
+        const row = h("div", "erow");
+        const ti = h("input"); ti.id = "e-t-" + g.i; ti.value = g.t; ti.maxLength = 90; ti.setAttribute("aria-label", "Goal text");
+        const mi = h("input"); mi.id = "e-m-" + g.i; mi.type = "number"; mi.min = 1; mi.max = 30; mi.value = g.min; mi.setAttribute("aria-label", "Minutes");
+        ti.oninput = () => editGoal(m.n, g, { t: ti.value }); mi.oninput = () => editGoal(m.n, g, { min: Math.max(1, Math.min(30, parseInt(mi.value, 10) || 1)) });
+        const hb = h("button", "small", g.custom ? "Delete" : g.hidden ? "Show" : "Hide");
+        hb.onclick = () => g.custom ? delExtra(m.n, g.i) : toggleHide(m.n, g.i);
+        row.append(ti, mi, h("span", "m", "min"), hb); t.appendChild(row);
+        if (g.tip) t.appendChild(h("small", null, g.tip));
+      } else {
+        t.appendChild(document.createTextNode(g.t + " "));
+        t.appendChild(h("span", "m", `${g.min} min${g.opt ? ", optional" : ""}${g.custom ? ", your goal" : ""}`));
+        if (g.tip) t.appendChild(h("small", null, g.tip));
+      }
+      li.append(b, t); ol.appendChild(li);
+    });
+    sec.appendChild(ol);
+    if (editing) { const ab = h("button", "small", "+ Add a goal to " + st.name); ab.style.marginTop = "6px"; ab.onclick = () => addExtra(m.n, si); sec.appendChild(ab); }
+    box.appendChild(sec);
+  });
+}
+function customFor(n) { const k = gkey(n), c = Object.assign({ edit: {}, hide: {}, extra: [] }, obj(state.custom[k])); c.edit = Object.assign({}, obj(c.edit)); c.hide = Object.assign({}, obj(c.hide)); c.extra = Array.isArray(c.extra) ? c.extra.map(x => Object.assign({}, x)) : []; state.custom[k] = c; return c; }
+function editGoal(n, g, patch) {
+  const c = customFor(n);
+  if (g.custom) { const x = c.extra.find(x => x.id === g.i); if (x) Object.assign(x, patch); }
+  else c.edit[g.i] = Object.assign({}, c.edit[g.i] || {}, patch);
+  save(900); drawTop();
+}
+function toggleHide(n, id) { const c = customFor(n); if (c.hide[id]) delete c.hide[id]; else c.hide[id] = true; save(0); renderAll(); }
+function addExtra(n, si) { const c = customFor(n), id = "x" + Date.now().toString(36); c.extra.push({ id, stage: si, t: "New goal", min: 3 }); save(0); renderAll(); const e = $("e-t-" + id); if (e) { e.focus(); e.select(); } }
+function delExtra(n, id) { const c = customFor(n); c.extra = c.extra.filter(x => x.id !== id); const a = goalsOf(n); delete a[id]; state.goals[gkey(n)] = a; save(0); renderAll(); }
+function pickPath(k, fromAdult) {
+  state.path = PATHS[k] ? k : "";
+  save(0); renderAll();
+  if (state.path) { toast((fromAdult ? "Game set: " : "You picked ") + PATHS[k].name + "!"); if (!fromAdult) { burst(160); fanfare(); } }
+}
+function drawGrownups() {
+  const m = missionOf(selected), nt = noteOf(m.n);
+  drawPlan(m); $("p-prev").disabled = m.n === 1; $("p-next").disabled = m.n === 20;
+  $("g-eyebrow").textContent = "Session " + m.n + " · " + m.name;
+  $("g-title").textContent = "Session " + m.n + " notes";
+  setVal("n-date", nt.date || ""); setVal("n-core", nt.core || ""); setVal("n-focus", nt.focus ?? "");
+  setVal("n-hook", nt.hook || ""); setVal("n-frust", nt.frust || ""); setVal("n-change", nt.change || "");
+  $("n-bugs").value = state.bugLog[m.n] || 0;
+  $("g-hint").textContent = nt.core === "not" ? "Not done yet? Repeat it next time with fewer steps. Stretching past 20 sessions is fine." : "Notes save as you type. The date fills in when the first XP is given.";
+  const tb = $("g-table"); tb.innerHTML = "";
+  allMissions().forEach(x => {
+    const n = noteOf(x.n), tr = h("tr", "click");
+    const xp = state.log.filter(e => e.s === x.n).reduce((a, e) => a + e.pts, 0);
+    const ga = goalsOf(x.n), gl = goalsFlat(x.n).filter(g => !g.opt), st = gl.filter(g => ga[g.i]).length;
+    tr.appendChild(h("td", "n", x.n + (x.boss ? " ★" : "")));
+    tr.appendChild(h("td", null, x.name));
+    tr.appendChild(h("td", "n", n.date ? new Date(n.date + "T12:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "–"));
+    const c = h("td"); if (n.core && CORE[n.core]) c.appendChild(h("span", "tag " + CORE[n.core][1], CORE[n.core][0])); else c.textContent = state.done[x.n] ? "Done" : "–"; tr.appendChild(c);
+    tr.appendChild(h("td", "n", n.focus != null && n.focus !== "" ? n.focus + " min" : "–"));
+    tr.appendChild(h("td", "n", st + "/" + gl.length));
+    tr.appendChild(h("td", "n", xp || "–"));
+    tr.appendChild(h("td", null, n.change || ""));
+    tr.onclick = () => { selected = x.n; renderAll(); $("view-grownups").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" }); };
+    tb.appendChild(tr);
+  });
+  const rw = $("rwlist");
+  if (!rw.children.length) {
+    for (let i = 0; i < 10; i++) {
+      const lab = h("label"); lab.appendChild(document.createTextNode((i + 1) * REWARD_STEP + " XP"));
+      const inp = h("input"); inp.id = "rw-" + i; inp.maxLength = 60; inp.placeholder = i === 0 ? "e.g. choose the next theme" : i === 1 ? "e.g. 5 mins free play" : "";
+      inp.addEventListener("input", () => { const a = state.rewards.slice(); while (a.length <= i) a.push(""); a[i] = inp.value; state.rewards = a; save(900); drawTop(); });
+      lab.appendChild(inp); rw.appendChild(lab);
+    }
+  }
+  for (let i = 0; i < 10; i++) setVal("rw-" + i, state.rewards[i] || "");
+  drawAdult();
+}
+[["n-date","date"],["n-core","core"],["n-focus","focus"],["n-hook","hook"],["n-frust","frust"],["n-change","change"]].forEach(([id, k]) => {
+  const e = $(id);
+  e.addEventListener(e.tagName === "SELECT" || e.type === "date" ? "change" : "input", () => {
+    let v = e.value; if (k === "focus") v = v === "" ? "" : Math.max(0, Math.min(60, parseInt(v, 10) || 0));
+    setNote(selected, k, v, e.tagName === "SELECT" || e.type === "date");
+  });
+});
+function drawAdult() {
+  const box = $("adultbtns"); box.innerHTML = "";
+  if (confirming === "session") {
+    const c = h("span", "confirm", `Reset session ${selected}? Clears its goals, XP, badge and bugs. Notes stay. `);
+    const y = h("button", "small", "Yes, reset it"), n = h("button", "small", "Keep it");
+    y.onclick = () => { confirming = false; resetSession(selected); };
+    n.onclick = () => { confirming = false; drawAdult(); };
+    c.append(y, n); box.appendChild(c);
+  } else if (confirming) {
+    const c = h("span", "confirm", "Clear all progress, notes and XP? ");
+    const y = h("button", "small", "Yes, clear it"), n = h("button", "small", "Keep it");
+    y.onclick = () => { state = blank(); selected = 1; confirming = false; save(0); setPart(0); renderAll(); toast("New quest started"); };
+    n.onclick = () => { confirming = false; drawAdult(); };
+    c.append(y, n); box.appendChild(c);
+  } else {
+    const u = h("button", "small", "Undo last XP"); u.disabled = !state.log.length; u.onclick = undo;
+    const ss = h("button", "small", `Reset session ${selected}`); ss.onclick = () => { confirming = "session"; drawAdult(); };
+    const r = h("button", "small", "Start a new quest"); r.onclick = () => { confirming = true; drawAdult(); };
+    box.append(u, ss, r);
+  }
+}
+
+function renderAll() {
+  drawTop();
+  if (tab === "mission") drawMission();
+  if (tab === "map") drawMap();
+  if (tab === "badges") drawBadges();
+  if (tab === "grownups") drawGrownups();
+}
+
+/* ---------- toast + confetti ---------- */
+let tt;
+function toast(t) { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("show"), 2600); }
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fx = $("fx"), ctx = fx.getContext("2d"); let parts = [], raf = null;
+function burst(count) {
+  if (reduced()) return;
+  fx.width = innerWidth; fx.height = innerHeight;
+  const cols = ["#ffb321","#5cc15a","#ff6a3d","#fffdf6","#3fb6c9"];
+  for (let i = 0; i < count; i++) parts.push({ x: innerWidth / 2, y: innerHeight * 0.55, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, s: 6 + Math.random() * 7, c: cols[i % 5], r: Math.random() * 6, life: 90 });
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function tick() {
+  ctx.clearRect(0, 0, fx.width, fx.height);
+  parts = parts.filter(p => p.life-- > 0);
+  parts.forEach(p => { p.vy += .4; p.x += p.vx; p.y += p.vy; p.r += .2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s); ctx.restore(); });
+  raf = parts.length ? requestAnimationFrame(tick) : (ctx.clearRect(0, 0, fx.width, fx.height), null);
+}
+
+/* ---------- saving ---------- */
+function save(delay) {
+  if (lsOK) { try { localStorage.setItem("bq-state", JSON.stringify(state)); } catch (e) {} }
+  if (!store) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flush, delay == null ? 400 : delay);
+}
+function flush() {
+  saveTimer = null;
+  if (inflight) { again = true; return; }
+  inflight = true;
+  store.set(JSON.parse(JSON.stringify(state)))
+    .catch(() => { $("savewhere").textContent = "Couldn't save online just now. Progress is kept on this device."; })
+    .finally(() => { inflight = false; if (again) { again = false; flush(); } });
+}
+const obj = v => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+function adopt(d) {
+  if (!d || typeof d !== "object") return;
+  state = {
+    name: typeof d.name === "string" ? d.name : "",
+    done: obj(d.done),
+    log: Array.isArray(d.log) ? d.log.filter(e => e && typeof e.pts === "number") : [],
+    goals: obj(d.goals), notes: obj(d.notes), path: typeof d.path === "string" ? d.path : "", custom: obj(d.custom),
+    bugs: typeof d.bugs === "number" ? d.bugs : 0, bugLog: obj(d.bugLog),
+    rewards: Array.isArray(d.rewards) ? d.rewards.map(x => typeof x === "string" ? x : "") : []
+  };
+}
+function adoptAndShow(d, first) { adopt(d); if (first) selected = nextStone() || 20; renderAll(); }
+
+$("bname").addEventListener("input", e => { state.name = e.target.value.slice(0, 20); save(900); });
+
+try { const raw = localStorage.getItem("bq-state"); lsOK = true; if (raw) adoptAndShow(JSON.parse(raw), true); } catch (e) { lsOK = false; }
+try { const t = localStorage.getItem("bq-tab"); if (t && $("view-" + t)) tab = t; } catch (e) {}
+selected = nextStone() || 20;
+setTab(tab);
+
+/* backup files: shown when the page runs on its own (e.g. GitHub Pages), where progress lives in this browser only */
+$("exportbtn").onclick = () => {
+  const blob = new Blob([JSON.stringify({ app: "builders-quest", version: 2, saved: new Date().toISOString(), state }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "builders-quest-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast("Backup downloaded");
+};
+$("importfile").onchange = e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try { const d = JSON.parse(r.result); const st = d && d.state ? d.state : d; if (!st || typeof st !== "object" || !("log" in st)) throw 0; adopt(st); selected = nextStone() || 20; save(0); renderAll(); toast("Backup loaded"); }
+    catch (err) { toast("That file isn't a Builder's Quest backup"); }
+    e.target.value = "";
+  };
+  r.readAsText(f);
+};
+
+(async () => {
+  try {
+    const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
+    if (!db) { $("savewhere").textContent = lsOK ? "Progress is saved in this browser on this device." : "Progress lasts until this page is closed. Download a backup before you go."; $("backup").hidden = false; return; }
+    store = db.doc("progress/main");
+    let first = true;
+    const timer = setTimeout(() => { if (first) $("savewhere").textContent = "Still connecting… progress is kept on this device for now."; }, 10000);
+    store.onSnapshot(snap => {
+      if (snap.metadata && snap.metadata.hasPendingWrites) return;
+      if (!snap.metadata || !snap.metadata.fromCache) clearTimeout(timer);
+      if (first) {
+        first = false; $("savewhere").textContent = "Progress saves automatically and opens on any device.";
+        if (!snap.exists) { if (state.log.length || doneCount()) save(0); return; }
+        adoptAndShow(snap.data(), true); return;
+      }
+      if (saveTimer || inflight) return; // our own edit is on its way
+      if (snap.exists) { const d = snap.data(); if (JSON.stringify(d) !== JSON.stringify(state)) adoptAndShow(d, false); }
+    }, () => { clearTimeout(timer); $("savewhere").textContent = "Couldn't reach online saving. Progress is kept on this device."; });
+  } catch (e) { $("savewhere").textContent = "Progress is saved in this browser on this device."; $("backup").hidden = false; }
+})();
+</script>
+
+</body>
+</html>
