@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 <title>Builder's Quest Map</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -241,6 +242,20 @@ button[disabled] { opacity: .45; cursor: default; transform: none; }
 .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--stone); }
 .dot.on { background: var(--grass); }
 
+/* password gate */
+html.locked, html.locked body { overflow: hidden; }
+.lock { position: fixed; inset: 0; z-index: 100; background: var(--sea); display: grid; place-items: center; overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.lockcard { width: 100%; max-width: 400px; display: grid; gap: 10px; text-align: center; }
+.lockicon { width: 72px; height: 72px; margin: 0 auto; }
+.lockh { font: 400 clamp(28px, 7vw, 36px) var(--display); margin: 0; color: var(--ink); text-shadow: none; }
+.lockp { margin: 0; font-weight: 700; color: var(--muted); }
+.locklab { font-weight: 800; font-size: 14px; color: var(--muted); text-align: left; }
+.lockcard input[type=password], .lockcard input[type=text] { font-size: 22px; padding: 10px 12px; text-align: center; letter-spacing: .08em; }
+.lockshow { display: flex; gap: 8px; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--muted); }
+.lockerr { margin: 0; min-height: 1.4em; font-weight: 800; color: var(--lava); }
+.lockcard button { font-size: 20px; }
+
 /* map progress */
 .hero { animation: bob 1.2s ease-in-out infinite; }
 @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
@@ -319,6 +334,88 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
 </style>
 </head>
 <body>
+<div class="lock" id="lock">
+  <form class="card lockcard" id="lockform" autocomplete="off">
+    <svg viewBox="0 0 64 64" aria-hidden="true" class="lockicon"><rect x="12" y="28" width="40" height="30" rx="8" fill="#ffb321" stroke="#16323b" stroke-width="4"/><path d="M21 28v-8a11 11 0 0 1 22 0v8" fill="none" stroke="#16323b" stroke-width="5"/><circle cx="32" cy="42" r="4" fill="#16323b"/><path d="M32 45v6" stroke="#16323b" stroke-width="4" stroke-linecap="round"/></svg>
+    <h1 class="lockh" id="lock-h">Builder's Quest</h1>
+    <p class="lockp" id="lock-p">Type your secret password to start.</p>
+    <label class="locklab" for="lock-1" id="lock-l1">Password</label>
+    <input type="password" id="lock-1" maxlength="40" autocomplete="off">
+    <label class="locklab" for="lock-2" id="lock-l2" hidden>Type it again</label>
+    <input type="password" id="lock-2" maxlength="40" autocomplete="off" hidden>
+    <label class="lockshow"><input type="checkbox" id="lock-show"> Show password</label>
+    <p class="lockerr" id="lock-err" role="alert"></p>
+    <button class="go" type="submit" id="lock-go">Let me in</button>
+  </form>
+</div>
+<script>
+/* Simple password gate for the hosted site. It keeps bots and casual visitors out; it is not real security,
+   because everything is checked in this browser. The learner sets the password on first visit (saved in
+   this browser only). The grown-up password always works and can't be used as the learner's password. */
+(function () {
+  const ADMIN_HASH = "928e1d2fa30db9b0811dd74e94ab3e67a71fbecbe9f2c19d7bd63e86cca7f012";
+  const KEY = "bq-pass", SESS = "bq-unlocked";
+  function sha256(str) {
+    const K = [], H = [], isP = n => { for (let f = 2; f * f <= n; f++) if (n % f === 0) return false; return true; };
+    for (let n = 2, c = 0; c < 64; n++) if (isP(n)) { if (c < 8) H[c] = (Math.pow(n, 1 / 2) * 2 ** 32) | 0; K[c++] = (Math.pow(n, 1 / 3) * 2 ** 32) | 0; }
+    const b = Array.from(new TextEncoder().encode(str)), l = b.length * 8;
+    b.push(0x80); while (b.length % 64 !== 56) b.push(0);
+    for (let i = 7; i >= 0; i--) b.push(i > 3 ? 0 : (l >>> (i * 8)) & 255);
+    const r = (x, n) => (x >>> n) | (x << (32 - n));
+    for (let i = 0; i < b.length; i += 64) {
+      const w = [];
+      for (let j = 0; j < 64; j++) {
+        if (j < 16) w[j] = (b[i + j * 4] << 24) | (b[i + j * 4 + 1] << 16) | (b[i + j * 4 + 2] << 8) | b[i + j * 4 + 3];
+        else { const a = w[j - 15], c = w[j - 2]; w[j] = (w[j - 16] + (r(a, 7) ^ r(a, 18) ^ (a >>> 3)) + w[j - 7] + (r(c, 17) ^ r(c, 19) ^ (c >>> 10))) | 0; }
+      }
+      let [A, B, C, D, E, F, G, X] = H;
+      for (let j = 0; j < 64; j++) {
+        const t1 = (X + (r(E, 6) ^ r(E, 11) ^ r(E, 25)) + ((E & F) ^ (~E & G)) + K[j] + w[j]) | 0;
+        const t2 = ((r(A, 2) ^ r(A, 13) ^ r(A, 22)) + ((A & B) ^ (A & C) ^ (B & C))) | 0;
+        X = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;
+      }
+      [A, B, C, D, E, F, G, X].forEach((v, k) => { H[k] = (H[k] + v) | 0; });
+    }
+    return H.map(v => (v >>> 0).toString(16).padStart(8, "0")).join("");
+  }
+  const hash = s => sha256("bq:" + s);
+  const get = (st, k) => { try { return st.getItem(k); } catch (e) { return null; } };
+  const put = (st, k, v) => { try { v == null ? st.removeItem(k) : st.setItem(k, v); return true; } catch (e) { return false; } };
+  const $l = id => document.getElementById(id), lock = $l("lock");
+  window.bqGate = { admin: false, changePassword() { put(localStorage, KEY, null); put(sessionStorage, SESS, null); show(); } };
+  // On claude.ai the page is already private, so no gate there.
+  if (window.claude) { lock.hidden = true; window.bqGate.off = true; return; }
+  if (get(sessionStorage, SESS)) { lock.hidden = true; window.bqGate.admin = get(sessionStorage, SESS) === "admin"; return; }
+  let mode = "";
+  function show() {
+    mode = get(localStorage, KEY) ? "enter" : "set";
+    lock.hidden = false; document.documentElement.classList.add("locked");
+    $l("lock-h").textContent = mode === "set" ? "Make your secret password" : "Builder's Quest";
+    $l("lock-p").textContent = mode === "set" ? "Pick a password only you and your grown-up know. You'll type it each time you start." : "Type your secret password to start.";
+    $l("lock-l2").hidden = $l("lock-2").hidden = mode !== "set";
+    $l("lock-go").textContent = mode === "set" ? "Save my password" : "Let me in";
+    $l("lock-1").value = $l("lock-2").value = ""; $l("lock-err").textContent = "";
+    setTimeout(() => { try { $l("lock-1").focus(); } catch (e) {} }, 50);
+  }
+  function open(asAdmin) {
+    put(sessionStorage, SESS, asAdmin ? "admin" : "1"); window.bqGate.admin = asAdmin;
+    lock.hidden = true; document.documentElement.classList.remove("locked");
+    if (window.bqAfterUnlock) window.bqAfterUnlock(asAdmin);
+  }
+  function err(t) { const e = $l("lock-err"); e.textContent = t; const c = $l("lockform"); c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); }
+  $l("lock-show").onchange = e => { $l("lock-1").type = $l("lock-2").type = e.target.checked ? "text" : "password"; };
+  $l("lockform").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $l("lock-1").value, hv = hash(v);
+    if (hv === ADMIN_HASH) return open(true);
+    if (mode === "enter") return hv === get(localStorage, KEY) ? open(false) : err("Not quite! Try again.");
+    if (v.trim().length < 3) return err("Make it at least 3 letters long.");
+    if (v !== $l("lock-2").value) return err("Those two don't match. Try again.");
+    put(localStorage, KEY, hv); open(false);
+  });
+  show();
+})();
+</script>
 <canvas id="fx"></canvas>
 <div class="wrap">
   <header>
@@ -501,6 +598,7 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
         <button class="small" id="exportbtn">Download backup</button>
         <label class="small btnlike" for="importfile">Load backup</label>
         <input type="file" id="importfile" accept=".json,application/json" hidden>
+        <button class="small" id="changepass">Change the password</button>
       </div>
     </section>
   </div>
@@ -1525,6 +1623,8 @@ function adopt(d) {
 }
 function adoptAndShow(d, first) { adopt(d); if (first) selected = nextStone() || 20; renderAll(); }
 
+$("changepass").onclick = () => { if (window.bqGate) window.bqGate.changePassword(); };
+window.bqAfterUnlock = admin => { if (admin) setTimeout(() => toast("Grown-up mode: welcome, Tom"), 300); };
 $("bname").addEventListener("input", e => { state.name = e.target.value.slice(0, 20); save(900); });
 
 try { const raw = localStorage.getItem("bq-state"); lsOK = true; if (raw) adoptAndShow(JSON.parse(raw), true); } catch (e) { lsOK = false; }

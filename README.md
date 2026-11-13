@@ -13,12 +13,18 @@ A gamified lesson tracker for a 20-session, one-to-one Roblox Studio course (Yea
 
 ## Put it on GitHub Pages
 
-1. Make a new repo (or use an existing one) and copy this folder's files into it: `index.html`, `README.md` and `.nojekyll`.
+1. Make a new repo (or use an existing one) and copy this folder's files into it: `index.html`, `README.md`, `robots.txt` and `.nojekyll`.
 2. Push to GitHub.
 3. On GitHub go to **Settings › Pages**. Under "Build and deployment" pick **Deploy from a branch**, then your branch (usually `main`) and `/ (root)`. Save.
 4. After a minute the site is live at `https://<your-username>.github.io/<repo-name>/`.
 
 If you put the folder inside a bigger repo, the address becomes `.../<repo-name>/builders-quest/`.
+
+## Password
+
+The hosted site opens with a password screen. On the first visit the learner makes their own password (at least 3 letters). After that it asks for it each time a new tab is opened. The grown-up password `TomAdmin` always works, and **Grown-ups › Change the password** lets the learner pick a new one.
+
+This is a light barrier, not real security. It's all checked in the browser, so it stops bots and casual visitors but not someone who reads the code. The learner's password is saved in that browser only, so on a new device or after clearing browser data they'll be asked to make one again. `robots.txt` and a `noindex` tag also ask search engines to stay away. The claude.ai copy skips the password because it's already private.
 
 ## Where progress is saved
 
