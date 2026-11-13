@@ -634,40 +634,40 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
 const MISSIONS = [
   [1,"Welcome, Builder!","I can open Studio, move the camera and press Play","Explorer",
     ["Look around: hold right-click and drag","Fly with W A S D, go up and down with E and Q","Click a part to pick it","Press Play, walk about, press Stop"],"Find all 3 treasure blocks in under 2 minutes"],
-  [2,"Paint the World","I can change the colour and material of parts","Painter",
-    ["Open the Obby template","Click a part and change its BrickColor","Change its Material: grass, ice, wood or neon","Pick a theme: lava, ice or candy world"],"Make one neon glowing path"],
-  [3,"Bigger, Smaller, Twistier","I can move, scale and rotate parts","Scaler",
-    ["Move a platform with the Move tool","Make one bigger or smaller with Scale","Turn one with Rotate","Make one jump easier and one harder"],"Build a staircase of 5 platforms"],
-  [4,"Race Day","I can change settings to change how a game feels","Racer",
-    ["Open the Racing template","Recolour the track","Move the cones","Copy a ramp with Ctrl+D, then race a lap"],"Add a shortcut ramp"],
-  [5,"Remix Challenge","I can remix a whole level so it looks like mine","Apprentice Builder",
-    ["Pick a new theme and paint the level","Change 3 jumps","Recolour the finish","Let someone else play it"],"Name your game and save a thumbnail screenshot"],
-  [6,"Block Builder","I can add my own parts and group them","Builder",
-    ["Insert a block, sphere, wedge and cylinder","Build a den or tower from 8 parts","Select it all and group it with Ctrl+G","Move the whole thing in one go"],"Add a roof made of wedges"],
-  [7,"Decorate Island","I can add models from my kit and place them neatly","Designer",
-    ["Drag trees and rocks from the Builder's Kit","Rotate and scale so nothing floats","Add fences and lights","Change ClockTime for day or night"],"Make a sunset (ClockTime 18)"],
-  [8,"Switch It","I can use property switches to make tricks","Trickster",
-    ["Ghost floor: turn CanCollide off","Invisible wall: set Transparency to 1","Falling block: turn Anchored off","Fill in a When… Then… card for each"],"Build a secret invisible bridge"],
-  [9,"Danger Zone","I can add a trap that sends players back","Trap Maker",
-    ["Drag a Kill Brick in from the kit","Colour it so players know (or don't, sneaky!)","Build a 3-jump lava run","Play test it"],"A kill brick that's also a ghost floor"],
-  [10,"Trap Course","I can build a short level that is fair but tricky","Trap Champion",
-    ["Build 6 jumps","Add 2 kill bricks and 1 ghost floor","Add a finish pad","Take turns playing, then fix one thing"],"Beat it with zero falls"],
-  [11,"Save Point","I can add checkpoints so players don't start again","Checkpoint",
-    ["Insert a SpawnLocation","Put more along the course","Colour them so they're easy to spot","Fall off on purpose and check you come back"],"Decorate each checkpoint with a flag"],
-  [12,"Things That Move","I can make a part spin or slide","Engineer",
-    ["Add a HingeConstraint with a Motor","Change Speed to make it spin","Add a PrismaticConstraint with a Servo","Change Target to tune the slide"],"A spinning bar players must jump over"],
-  [13,"Coin Collector","I can add coins and a score","Coin Collector",
-    ["Drag Coins in from the kit","Change each coin's Value: 1, 5 or 10","Hide a rare 10-point coin","Play and watch your score go up"],"A secret coin behind an invisible wall"],
-  [14,"Power-Ups","I can change how fast or high a player goes","Power-Up",
-    ["Drag in a Speed Pad","Change WalkSpeed and test it","Drag in a Jump Pad and change JumpPower","Add a sound from the kit"],"A jump pad that reaches a hidden platform"],
-  [15,"Mini Adventure","I can combine everything into one level","Master Builder",
-    ["A start spawn and 2 checkpoints","1 moving part and some traps","3 coins and 1 power-up","A finish, then show someone"],"Collect every coin in one run"],
-  [16,"Game Designer","I can plan my own game on paper","Game Planner",
-    ["Name your game and pick a theme","Draw your 3 stages as boxes","Mark the traps, coins and how you win","Start building the spawn area"],"Draw a logo for your game"],
-  [17,"Build Stage 1 and 2","I can build my levels from my plan","Level Maker",
-    ["Build stage 1 from your plan","Add a checkpoint at the end of it","Build stage 2 and its checkpoint","Tick each thing off your plan"],"Add a secret area"],
-  [18,"Build Stage 3 and the Finish","I can finish my game","Finisher",
-    ["Build stage 3, the hardest one","Build a finish area","Add a celebration: confetti, music, a You Win sign","Add coins and power-ups"],"Put a trophy at the end"],
+  [2,"Ground Zero","I can start my game from a blank Baseplate","Painter",
+    ["Open a new Baseplate, name your game and save it","Pick your theme and paint the Baseplate","Build a spawn platform and put the SpawnLocation on it","Check every part is Anchored"],"Make a Neon path from the spawn"],
+  [3,"First Build","I can build the first part of my game neatly","Scaler",
+    ["Turn on Snap to grid","Build Zone 1 with Ctrl+D, Move and Scale","Turn something with Rotate","Play Zone 1 from the spawn"],"Build a staircase of 5 rising platforms"],
+  [4,"World Shaper","I can tidy my build and make a world around it","Designer",
+    ["Rename parts and put them in folders","Add hills and paint the ground with the Terrain Editor","Pick day or night with ClockTime","Add decorations from the Builder's Kit"],"Make a sunset (ClockTime 18)"],
+  [5,"Zone 1 Complete","I can finish the first part of my game so someone else can play it","Apprentice Builder",
+    ["Finish Zone 1","Make a sign for it","Decorate it","Let someone else play it"],"Play Zone 1 with zero falls"],
+  [6,"Switch It","I can use property switches to make tricks","Trickster",
+    ["Start Zone 2 with a ghost part (CanCollide off)","Add an invisible wall (Transparency 1)","Add a falling block (Anchored off)","Fill in a When… Then… card for each"],"Build a secret invisible bridge"],
+  [7,"Danger Zone","I can add a trap that sends players back","Trap Maker",
+    ["Drag a Kill Brick in from the kit","Put lava in Zone 1","Put lava at the start of Zone 2","Colour it so players know (or don't, sneaky!)"],"A kill brick that's also a ghost floor"],
+  [8,"Save Point","I can add checkpoints so players don't start again","Checkpoint",
+    ["Put a checkpoint at the end of Zone 1","Put one halfway through Zone 2","Colour them so they're easy to spot","Fall in the lava on purpose and check you come back"],"Decorate each checkpoint with a flag"],
+  [9,"Trap Zone","I can build a zone from tricks and traps","Builder",
+    ["Build the rest of Zone 2","Mix in ghost parts, invisible walls and falling blocks","Add kill bricks","Put Zone 2 in a folder and add a sign"],"A fake ghost path with the real path hidden"],
+  [10,"Trap Course","I can make a zone that is fair but tricky","Trap Champion",
+    ["Finish Zone 2 with a checkpoint","Take turns playing Zones 1 and 2","Count the falls","Change one thing that's too hard or too easy"],"Play Zones 1 and 2 with zero falls"],
+  [11,"Things That Move","I can make a part spin or slide","Engineer",
+    ["Start Zone 3","Add a spinning part with a hinge motor","Add the kit's Back and Forth platform","Tune the speeds so they're fair"],"A spinning bar players must jump over"],
+  [12,"Coin Collector","I can add coins and a score","Coin Collector",
+    ["Drag Coins in from the kit","Put coins in every zone","Change each coin's Value: 1, 5 or 10","Hide a rare 10-point coin"],"A secret coin behind an invisible wall"],
+  [13,"Power-Ups","I can change how fast or high a player goes","Power-Up",
+    ["Drag in a Speed Pad and change WalkSpeed","Drag in a Jump Pad and change JumpPower","Use a Jump Pad to reach a high bit of Zone 3","Add a sound from the kit"],"A jump pad that reaches a hidden coin"],
+  [14,"The Final Zone","I can build the hardest part of my game","Level Maker",
+    ["Put a checkpoint at the start of Zone 3","Build the rest of Zone 3","Use moving parts, pads and traps","Put Zone 3 in a folder and add a sign"],"A jump that needs a Speed Pad run-up"],
+  [15,"Finish Line","I can finish my whole game from start to end","Master Builder",
+    ["Build a finish area","Add confetti, a You Win sign and a trophy","Play the whole game from the spawn","Show it off to someone at home"],"Collect every coin in one run"],
+  [16,"Game Designer","I can plan how to make my game better","Game Planner",
+    ["Play your whole game","Fill in the Make it better sheet","Pick your star feature","Build a lobby with a welcome sign"],"Draw a logo for your game"],
+  [17,"Sparkle and Sound","I can add effects that make my game feel alive","Effects Wizard",
+    ["Add sparkles with a ParticleEmitter","Light the way with lights or Neon","Add background music","Change the sky or Atmosphere"],"Sparkles that match each stage's colour"],
+  [18,"Secrets and Star Feature","I can add a secret area and my star feature","Finisher",
+    ["Build a secret room behind a ghost wall","Add a Jump Pad to reach it","Hide a rare coin inside","Add more of your star feature"],"A second secret only you know about"],
   [19,"Bug Hunt","I can test my game and fix problems","Tester",
     ["Play your whole game","Watch a grown-up play it too","Write each bug on the Bug Hunt sheet","Squash 5 bugs"],"Get someone else to finish your game"],
   [20,"Launch Day","I can publish and share my game","Game Creator",
@@ -677,7 +677,7 @@ const MISSIONS = [
 /* Full lesson plans. Each goal: [text, minutes, grown-up tip]. Warm-up, play test and wrap use the standard
    goals unless a session sets its own. A movement break is slotted into the middle of Build time. */
 const STD = {
-  warm: [["Play last session's build for 2 minutes", 3, "Open last session's file before they arrive"], ["Look at today's mission and badge", 2, "Show the mission card and point at the glowing stone"]],
+  warm: [["Open your game and save a backup copy", 2, "File > Save to File As, named like S07-start, then reopen the main file"], ["Play your game from the spawn", 2], ["Look at today's mission and badge", 1, "Show the mission card and point at the glowing stone"]],
   test: [["Play your build from start to end", 4], ["Watch your grown-up play it. Listen for one wow and one what if", 3, "Give one specific wow and one gentle what if"], ["Fix your what if, or save it for next time", 3]],
   wrap: [["Save with Ctrl+S", 1], ["Screenshot it into My Builds", 1, "Use the Screenshot button below to tick it off"], ["Collect your XP and badge", 3, "Press Mission done, then the badge sticker goes on"]]
 };
@@ -686,132 +686,128 @@ const PLAN = {
        show: [["Look around: hold right-click and drag", 3, "Hold right-click for them if it's tricky"], ["Fly with W A S D. E goes up, Q goes down", 4, "Watch me, then your turn"], ["Click a part to pick it. Click the sky to let go", 3]],
        build: [["Camera challenge: look at the sky", 2], ["Camera challenge: fly to the SpawnLocation", 3], ["Camera challenge: go up really high", 2], ["Find the RED treasure block", 6, "Hint after 2 minutes: try behind the spawn"], ["Find the BLUE treasure block", 6, "Hint: try looking up"], ["Find the YELLOW treasure block", 6, "Hint: try the far edge"], ["Click each treasure to claim it", 3]],
        test: [["Press Play and walk your avatar about", 4], ["Walk to each treasure block", 3], ["Press Stop to go back to building", 1, "Stuck in Play? Red Stop button or Shift+F5"], ["Tell your grown-up your favourite bit", 2]] },
-  2: { show: [["Find the Properties window", 3, "It's the panel on the right"], ["Click a part, then change its BrickColor", 4], ["Change a part's Material", 3]],
-       build: [["Open the Obby template", 2], ["Pick your theme: lava, ice or candy world", 2], ["Paint the start area in your theme colours", 6], ["Paint 5 platforms", 6], ["Give 3 parts a new Material", 5], ["Make the finish line stand out", 4], ["Play it to see your world", 3]] },
-  3: { show: [["Move tool: drag an arrow", 3], ["Scale tool: drag a ball", 3], ["Rotate tool: drag a ring", 4]],
-       build: [["Turn on Snap to grid (1 stud)", 2, "Model tab, then the Snap settings"], ["Move 3 platforms to new places", 5], ["Make one platform huge", 4], ["Make one platform tiny", 4], ["Twist a platform with Rotate", 4], ["Make one jump easier", 4], ["Make one jump harder", 5]] },
-  4: { show: [["Open the Racing template", 3], ["Copy a part with Ctrl+D", 3], ["Drive the car in Play mode", 4]],
-       build: [["Recolour the track", 5], ["Move the cones to make a new route", 5], ["Copy a ramp with Ctrl+D", 4], ["Put the new ramp on the track", 5], ["Change the colour of the start line", 3], ["Race one full lap", 6]] },
-  5: { show: [["Look at the Obby. What will you change?", 3], ["Quick reminder: colour, material, move, scale", 4], ["Plan it: your theme and 3 jumps to change", 3]],
-       build: [["Paint the start area in your new theme", 5], ["Paint every platform", 6], ["Change jump 1", 4], ["Change jump 2", 4], ["Change jump 3", 4], ["Recolour the finish", 3], ["Try the whole level once", 2]],
-       test: [["Let someone else play your remix", 4], ["Cheer them on while they play", 3], ["Fix one thing they found", 3]] },
-  6: { show: [["Insert a Part from the Model tab", 3], ["Change its shape: block, sphere, wedge, cylinder", 4], ["Select lots of parts and group with Ctrl+G", 3]],
-       build: [["Open a fresh Baseplate", 1], ["Place 2 blocks for the floor", 4], ["Add 4 walls or tower blocks", 6], ["Add a sphere, wedge or cylinder", 4], ["Count your parts. 8 or more?", 2], ["Select everything and group with Ctrl+G", 3], ["Move the whole build in one go", 3], ["Colour your build", 5]] },
-  7: { show: [["Find the Builder's Kit folder", 3, "Only use the checked kit, not free Toolbox models"], ["Drag a model into the world", 3], ["Change ClockTime in Lighting", 4]],
-       build: [["Plant 3 trees", 5], ["Add 3 rocks", 4], ["Check nothing floats. Fix it with Move", 4], ["Add a fence", 5], ["Add some lights", 4], ["Pick day or night with ClockTime", 3], ["Fly round and admire your island", 3]] },
-  8: { show: [["CanCollide off makes a ghost part", 3], ["Transparency 1 makes it invisible", 3], ["Anchored off makes it fall", 4]],
-       build: [["Build a ghost floor", 4], ["Play test it. Do you fall through?", 3], ["Fill in a When… Then… card for it", 3, "WHEN a player stands on it, THEN they fall through"], ["Build an invisible wall", 4], ["Play test it. Can you walk through?", 3], ["Build a falling block", 4], ["Play test it", 3], ["Fill in When… Then… cards for the other two", 4]] },
-  9: { show: [["Drag a Kill Brick in from the kit", 3], ["See what it does in Play mode", 4], ["Copy it with Ctrl+D", 3]],
-       build: [["Build platform 1", 4], ["Put a Kill Brick lava floor under it", 4], ["Build platform 2", 4], ["Build platform 3", 4], ["Copy more lava with Ctrl+D", 4], ["Pick: warning colour or sneaky trap?", 3], ["Run the whole lava run", 5]] },
-  10: { show: [["Plan your 6 jumps on paper", 4], ["Remember Kill Bricks and ghost floors", 3], ["What makes a jump fair?", 3, "Fair means you can see it and it's possible"]],
-        build: [["Build jumps 1 and 2", 5], ["Build jumps 3 and 4", 5], ["Build jumps 5 and 6", 5], ["Add 2 Kill Bricks", 4], ["Add 1 ghost floor", 3], ["Add a finish pad", 3], ["Try it yourself once", 3]],
-        test: [["Take turns trying the course", 5], ["Too hard? Change one thing", 3], ["Try it again", 2]] },
-  11: { show: [["Insert a SpawnLocation", 3, "Set up Teams before the session (handbook section 10). Extra spawns on their own are random, not checkpoints"], ["Touch it to make it your checkpoint", 3, "Each spawn: Neutral off, AllowTeamChangeOnTouch on, TeamColor matching its Team"], ["Fall off on purpose. Where do you come back?", 4, "Back at a random spawn? The Teams setup is missing"]],
-        build: [["Open your trap course", 2], ["Put a checkpoint after jump 2", 5, "Each checkpoint needs its own Team with a matching TeamColor"], ["Put a checkpoint after jump 4", 5], ["Put one before the finish", 5], ["Decorate them so they're easy to spot", 4, "Colour comes from TeamColor, so pick team colours they like. Duration 0 removes the sparkly bubble"], ["Fall off and check you come back", 4], ["Talk about it: why do checkpoints make games kinder?", 3]] },
-  12: { show: [["Add a HingeConstraint", 4, "Model tab, then Constraints"], ["Set it to Motor and change AngularVelocity", 3, "MotorMaxTorque starts at 0, so turn it up or nothing moves"], ["Add a PrismaticConstraint set to Servo", 3, "ServoMaxForce 100000, Speed 5, platform unanchored"]],
-        build: [["Build a platform to spin", 4], ["Add a hinge with a motor", 5], ["Change AngularVelocity: slow or fast?", 3, "2 or less keeps it fair"], ["Play test the spinner", 3], ["Build a platform to slide", 4], ["Add a slider with a servo", 5, "A servo slides once and stops. For back and forth, use the kit's Back and Forth part"], ["Change TargetPosition to set how far it slides", 4]] },
-  13: { show: [["Drag a Coin in from the kit", 3], ["Find its Value number in Properties", 4, "It's an Attribute near the bottom of Properties"], ["Watch the score in Play mode", 3]],
-        build: [["Place 5 coins along your course", 6], ["Set some coins to 1", 3, "Change numbers in edit mode, then press Play"], ["Set some coins to 5", 3], ["Make one rare coin worth 10", 3], ["Hide the 10 coin somewhere tricky", 5], ["Play and collect them all", 5], ["What's your top score?", 3]] },
-  14: { show: [["Drag in a Speed Pad", 3], ["Change its WalkSpeed number", 3], ["Drag in a Jump Pad and change JumpPower", 4, "Tick CharacterUseJumpPower under StarterPlayer first, or JumpPower changes do nothing"]],
-        build: [["Put a Speed Pad before a long run", 4], ["Try WalkSpeed 30", 3], ["Try WalkSpeed 60. Too fast?", 3], ["Put a Jump Pad down", 4], ["Find a JumpPower you like", 4, "Nothing happening? Check CharacterUseJumpPower is ticked"], ["Add a sound from the kit", 5, "Turn the volume down first if sound is a lot"], ["Test both pads", 5]] },
-  15: { show: [["Check the list: what goes in?", 3], ["Plan where each thing goes", 4], ["Quick reminder: checkpoints and pads", 3]],
-        build: [["Add a start spawn", 3], ["Add checkpoint 1", 3], ["Add checkpoint 2", 3], ["Add 1 moving part", 5], ["Add some traps", 4], ["Add 3 coins", 4], ["Add 1 power-up", 3], ["Build a finish", 3]],
-        test: [["Play the whole adventure", 4], ["Show it off to someone at home", 4], ["Fix one thing", 2]] },
-  16: { show: [["Look at the Game Plan sheet", 3], ["Obby or coin hunt? Have a think", 4], ["Pick 3 colours for your game", 3]],
-        build: [["Name your game", 3], ["Pick a theme", 3], ["Draw stage 1 as a box", 4], ["Draw stage 2", 4], ["Draw stage 3", 4], ["Mark the traps, coins and how you win", 5], ["Start the spawn area on a Baseplate", 5]],
-        test: [["Tell your grown-up about your plan", 4], ["Play your spawn area", 3], ["Add one more idea to the plan", 3, "Keep it small: 3 stages is plenty"]] },
-  17: { show: [["Look at your Game Plan", 3], ["Copy something from one of your old builds", 4, "Copying their own builds is a good habit"], ["Tick things off as you go", 3]],
-        build: [["Build the start of stage 1", 5], ["Finish stage 1", 5], ["Checkpoint at the end of stage 1", 3], ["Build the start of stage 2", 5], ["Finish stage 2", 5], ["Checkpoint at the end of stage 2", 3], ["Tick them off your plan", 2]] },
-  18: { show: [["Drag in the Confetti part", 3], ["Add music or a sound", 4], ["Make a You Win sign", 3]],
-        build: [["Build the start of stage 3", 5], ["Make stage 3 the hardest", 5], ["Build the finish area", 5], ["Add the confetti", 3], ["Add the You Win sign", 3], ["Add coins", 4], ["Add power-ups", 3]] },
-  19: { show: [["What counts as a bug?", 3, "Floating parts, impossible jumps, missing checkpoints"], ["Look at the Bug Hunt sheet", 3], ["Squash one bug together", 4]],
-        build: [["Play the whole game", 6], ["Write down the bugs you find", 4], ["Squash bug 1", 3], ["Squash bug 2", 3], ["Squash bug 3", 3], ["Squash bug 4", 3], ["Squash bug 5", 3], ["Play it again", 3]],
+  2: { warm: [["Look at today's mission and badge", 2], ["Pick a name for your game", 3, "Have a few theme pictures ready to help"]],
+       show: [["Open a new Baseplate and Save to File As your game's name", 3, "Into My Builds. This is the game file for the whole course"], ["Change a part's Color and Material", 3], ["Tick Anchored so it stays put", 4, "Untick it and press Play to show why it matters"]],
+       build: [["Pick your theme", 2, "It's only colours and materials, so it can change later"], ["Paint the Baseplate in your theme", 3], ["Change the Baseplate's Material", 2], ["Build a spawn platform from 4 parts", 6], ["Move the SpawnLocation onto it", 3], ["Colour and Material the spawn in your theme", 5], ["Check everything is Anchored, then Play", 4]] },
+  3: { show: [["Turn on Snap to grid: 1 stud and 15°", 3, "Model tab, then the Snap settings"], ["Copy a platform with Ctrl+D and move it", 3, "The copy sits on top until you move it"], ["Find your biggest jump", 4, "About 10 studs on the flat. Keep Zone 1 gaps to 4–8"]],
+       build: [["Build platform 1 off the spawn", 3], ["Copy it into platforms 2, 3 and 4", 5], ["Make platforms 5 to 8", 6], ["Make one big and one small", 3], ["Turn one with Rotate", 3], ["Make one step up higher", 3], ["Run Zone 1 from the spawn", 4]] },
+  4: { show: [["Rename a part in Explorer", 3, "Double-click the name. Zone1Jump3 beats Part ×40"], ["Make a Folder and drag parts into it", 3], ["Terrain Editor: Add and Paint", 4, "Keep it to Add, Smooth and Paint. 10-minute timer"]],
+       build: [["Put the spawn parts in a Spawn folder", 3], ["Put Zone 1 in a Zone 1 folder", 3], ["Add hills round your game", 5], ["Paint grass, sand, water or lava", 4], ["Pick day or night with ClockTime", 3, "Lighting in Explorer, then ClockTime"], ["Add 3 decorations from the kit", 5, "Only the checked kit, not free Toolbox models"], ["Fly round and admire your world", 2]] },
+  5: { show: [["Run Zone 1. What's missing?", 3], ["Make a sign: Part, SurfaceGui, TextLabel", 4, "SurfaceGui goes inside the part, TextLabel inside that. Check the Face if text doesn't show"], ["What makes a jump fair?", 3, "Fair means you can see it and it's possible"]],
+       build: [["Add a harder jump", 4], ["Add another harder jump", 4], ["Build the end platform", 4], ["Make the Zone 1 sign", 5], ["Decorate Zone 1", 5], ["Run it from the spawn with no help", 3]],
+       test: [["Let someone else play Zone 1", 4], ["Cheer them on while they play", 3], ["Fix one thing they found", 3]] },
+  6: { show: [["CanCollide off makes a ghost part", 3], ["Transparency 1 makes it invisible", 3], ["Anchored off makes it fall", 4]],
+       build: [["Start Zone 2 past the Zone 1 sign", 3], ["Build a ghost floor", 4], ["Play test it. Do you fall through?", 2], ["Build an invisible wall", 4], ["Play test it", 2], ["Build a falling block", 4], ["Play test it", 2], ["Fill in a When… Then… card for each", 5, "WHEN a player stands on it, THEN they fall through"]] },
+  7: { show: [["Drag a Kill Brick in from the kit", 3], ["See what it does in Play mode", 4], ["Copy it with Ctrl+D", 3]],
+       build: [["Put lava under Zone 1", 6], ["Put lava under the start of Zone 2", 5], ["Pick: warning colour or sneaky trap?", 3], ["Add one lava block on a platform", 4], ["Fill in a When… Then… card", 3], ["Run Zone 1 and the start of Zone 2", 5]] },
+  8: { show: [["Insert a SpawnLocation as a checkpoint", 3, "Teams set up before the session (handbook section 10). Extra spawns on their own are random, not checkpoints"], ["Touch it to make it your checkpoint", 3, "Each spawn: Neutral off, AllowTeamChangeOnTouch on, TeamColor matching its Team"], ["Fall in the lava. Where do you come back?", 4, "Back at a random spawn? The Teams setup is missing"]],
+       build: [["Put a checkpoint at the end of Zone 1", 5], ["Put one halfway through Zone 2", 5], ["Colour them so they're easy to spot", 4, "Colour comes from TeamColor. Duration 0 removes the sparkly bubble"], ["Fall in the lava and check you come back", 4], ["Talk about it: why do checkpoints make games kinder?", 3], ["Run from the spawn to the end", 4]] },
+  9: { show: [["Look at Zone 2 so far", 3], ["Mix tricks: ghost floor next to a real one", 4], ["Make a Zone 2 folder", 3]],
+       build: [["Build jumps 1 and 2", 4], ["Build jumps 3 and 4", 4], ["Build jumps 5 and 6", 4], ["Build jumps 7 and 8", 4], ["Add a ghost floor and a falling block", 4], ["Add kill bricks", 3], ["Put it in the folder and add a Zone 2 sign", 4]] },
+  10: { show: [["What makes it fair but tricky?", 3], ["Plan the end of Zone 2", 4], ["Count the falls when you test", 3]],
+        build: [["Build the end platform", 4], ["Add the checkpoint at the end", 4], ["Run Zones 1 and 2", 5], ["Count your falls", 2], ["Fix the hardest jump if it's too hard", 4], ["Make one jump trickier if it's too easy", 4], ["Run it again", 3]],
+        test: [["Take turns running Zones 1 and 2", 5], ["Who fell the least?", 2], ["Change one more thing", 3]] },
+  11: { show: [["Add a HingeConstraint", 4, "Model tab, then Constraints"], ["Set it to Motor and change AngularVelocity", 3, "MotorMaxTorque starts at 0, so turn it up or nothing moves"], ["Drag in the kit's Back and Forth part", 3]],
+        build: [["Start Zone 3 past the Zone 2 sign", 3], ["Build a platform to spin", 4], ["Add a hinge with a motor", 5], ["Change AngularVelocity: slow or fast?", 3, "2 or less keeps it fair"], ["Add a Back and Forth platform", 4], ["Change how far and how fast it goes", 4], ["Ride them both", 3]] },
+  12: { show: [["Drag a Coin in from the kit", 3], ["Find its Value number in Properties", 4, "It's an Attribute near the bottom of Properties"], ["Watch the score in Play mode", 3]],
+        build: [["Put 4 coins on Zone 1", 4], ["Put 4 coins on Zone 2", 4], ["Put 2 coins on Zone 3", 3], ["Set some coins to 5", 3, "Change numbers in edit mode, then press Play"], ["Make one rare coin worth 10", 3], ["Hide the 10 coin somewhere tricky", 4], ["Play and collect them all. Top score?", 4]] },
+  13: { show: [["Drag in a Speed Pad", 3], ["Change its WalkSpeed number", 3], ["Drag in a Jump Pad and change JumpPower", 4, "Tick CharacterUseJumpPower under StarterPlayer first, or JumpPower changes do nothing"]],
+        build: [["Put a Speed Pad before a long run", 4], ["Try WalkSpeed 30, then 60", 4], ["Put a Jump Pad on Zone 3", 4], ["Use it to reach a high platform", 5, "Nothing happening? Check CharacterUseJumpPower is ticked"], ["Add a sound from the kit", 4, "Turn the volume down first if sound is a lot"], ["Test both pads", 4]] },
+  14: { show: [["Look at Zone 3 so far", 3], ["Plan the hardest bits", 4], ["Checkpoint reminder", 3, "New Team with a matching TeamColor, same as session 8"]],
+        build: [["Put a checkpoint at the start of Zone 3", 4], ["Build 3 more jumps", 5], ["Add another moving part", 5], ["Add a trap", 3], ["Add a pad jump", 4], ["Put Zone 3 in a folder", 2], ["Add a Zone 3 sign", 3]] },
+  15: { show: [["Drag in the Confetti part", 3], ["Make a You Win sign", 4], ["Plan the finish area", 3]],
+        build: [["Build the finish platform", 4], ["Add the confetti", 3], ["Add the You Win sign", 4], ["Add a trophy", 3], ["Play the whole game from the spawn", 6], ["Fix anything that stops you finishing", 5]],
+        test: [["Play the whole game again", 4], ["Show it off to someone at home", 4], ["Fix one thing", 2]] },
+  16: { show: [["Look at the Make it better sheet", 3], ["What's your best bit?", 3], ["Pick your star feature", 4]],
+        build: [["Play your whole game", 5], ["Write what's too hard or too easy", 3], ["Write 3 upgrades you want", 4], ["Build a lobby round the spawn", 7], ["Add a welcome sign with your game's name", 5], ["Play from the lobby", 3]],
+        test: [["Tell your grown-up about your plan", 4], ["Play from the lobby", 3], ["Add one more idea to the plan", 3, "Keep it small: polish, not a Zone 4"]] },
+  17: { show: [["Add a ParticleEmitter to a part", 4], ["Change Color, Rate and Speed", 3, "Keep Rate low (5–20) or older laptops get laggy"], ["Add a Sound and tick Looped and Playing", 3, "Only kit sounds. Volume down first if sound is a lot"]],
+        build: [["Add sparkles to a coin", 4], ["Add sparkles to the finish", 4], ["Light the way with PointLights or Neon", 5], ["Add background music", 4], ["Change the sky or Atmosphere", 4], ["Play it. Too much? Turn something down", 4]] },
+  18: { show: [["Ghost wall reminder: CanCollide off", 3], ["Jump Pad reminder", 3], ["Look at your star feature on the plan", 4]],
+        build: [["Build a secret room", 5], ["Hide it behind a ghost wall", 4], ["Add a Jump Pad to reach it", 4], ["Hide a rare coin inside", 3], ["Add your star feature", 5], ["Add more of your star feature", 4], ["Find the secret in Play mode", 3]] },
+  19: { show: [["What counts as a bug?", 3, "Floating parts, impossible jumps, missing checkpoints, a test spawn left in"], ["Look at the Bug Hunt sheet", 3], ["Squash one bug together", 4]],
+        build: [["Play your whole game, start to finish", 6], ["Write down the bugs you find", 4], ["Squash bug 1", 3], ["Squash bug 2", 3], ["Squash bug 3", 3], ["Squash bug 4", 3], ["Squash bug 5", 3], ["Play it again", 3]],
         test: [["Watch a grown-up play the whole game", 4], ["Hunt for any last bugs", 3], ["Squash one more", 3]] },
   20: { show: [["Find Game Settings", 3], ["See where publishing lives", 4], ["Privacy: Private or friends-only", 3, "Publish on the parent's account, with their OK"]],
         build: [["Give your game a name", 3], ["Write a short description", 5], ["Take a thumbnail screenshot", 4], ["Publish it with your grown-up", 6], ["Check it's Private or friends-only", 3], ["Invite the family to the premiere", 3], ["Get your favourite bit ready to show", 4]],
-        test: [["Premiere: the family play your game", 5], ["Show them your favourite part", 3], ["Take a bow!", 2]] }
+        test: [["Premiere: the family play your game", 5], ["Show them your favourite part", 3], ["Scroll through your My Builds screenshots", 2]] }
 };
 const BREAK = ["Movement break: stand up, stretch, 10 star jumps", 2, "Screens off. This opens a 2-minute break timer", "break"];
 const STAGE_NAMES = ["Warm-up", "Show me", "Build time", "Play test", "Win and wrap"];
 const STAGE_AT = ["0–5", "5–15", "15–45", "45–55", "55–60"];
 const mk = (g, extra) => Object.assign({ t: g[0], min: g[1], tip: g[2] || "", kind: g[3] || "" }, extra || {});
-/* Game types the learner picks from after session 15. "obby" uses the main PLAN above. */
+/* Game types the learner picks at session 2. "obby" uses the main PLAN above; the others override Build time
+   in the sessions where their build differs (2, 3, 5, 9, 14, 15). */
 const PATHS = {
   obby: { name: "Obby Adventure", pitch: "A 3-stage obstacle course with traps, checkpoints and a big finish.", uses: "Trap Course, Save Point, Things That Move", col: "#ff6a3d", icon: "obby",
     m: {}, plan: {}, hunt: "Play your whole obby, start to finish" },
-  coins: { name: "Coin Hunt Island", pitch: "An island to explore, with coins hidden everywhere and a top score to beat.", uses: "Decorate Island, Coin Collector, Switch It", col: "#ffb321", icon: "coins",
+  coins: { name: "Coin Hunt Island", pitch: "An island to explore, with coins hidden everywhere and a top score to beat.", uses: "Coin Collector, Switch It, Power-Ups", col: "#ffb321", icon: "coins",
     hunt: "Hunt for every coin. Any you can't reach?",
-    m: { 17: ["Build the Island", "I can build the zones of my island", "Add a secret cave"], 18: ["Hide the Treasure", "I can hide coins and make them tricky to find", "Put a trophy at the end"] },
+    m: { 3: ["Island Paths", "I can build the first zone of my island", "Build a lookout tower"],
+         14: ["The Hardest Hunt", "I can hide coins in the hardest zone", "A coin only a Speed Pad run-up can reach"],
+         15: ["Treasure Room", "I can finish my island with a treasure room", "Collect every coin in one run"] },
     plan: {
-      16: { build: [["Name your game", 3], ["Pick your island theme", 3], ["Draw your island from above", 5], ["Mark 3 zones to explore", 4], ["Mark where the secret coins hide", 5], ["Start the island on a Baseplate", 8]] },
-      17: { show: [["Look at your island map", 3], ["Copy trees and rocks from your old builds", 4, "Copying their own builds is a good habit"], ["Group each zone with Ctrl+G", 3]],
-            build: [["Shape the island ground", 5], ["Build zone 1", 5], ["Build zone 2", 5], ["Build zone 3", 5], ["Add trees, rocks and lights", 5], ["Pick day or night", 3]] },
-      18: { show: [["Drag in Coins from the kit", 3], ["Remember Value: 1, 5 or 10", 3, "Change numbers in edit mode, then press Play"], ["Invisible walls hide secrets", 4]],
-            build: [["Place 10 coins worth 1", 6], ["Place 3 coins worth 5", 5], ["Hide one 10 coin somewhere sneaky", 5], ["Build a secret room behind an invisible wall", 5], ["Add a Jump Pad up to a high coin", 4, "CharacterUseJumpPower ticked under StarterPlayer"], ["Add a You Win sign", 3]] } } },
-  race: { name: "Race Track", pitch: "A race course with ramps, jumps and hazards. Beat your best lap!", uses: "Race Day, Things That Move, Danger Zone", col: "#3fb6c9", icon: "race",
+      2:  { build: [["Pick your island theme", 2], ["Paint the Baseplate as sand or grass", 3], ["Change its Material", 2], ["Build a spawn hut from 4 parts", 7], ["Move the SpawnLocation into the hut", 3], ["Colour the hut in your theme", 4], ["Check everything is Anchored, then Play", 4]] },
+      3:  { build: [["Build a path from the hut", 4], ["Copy path pieces with Ctrl+D", 4], ["Build a bridge", 5], ["Build 3 small huts or rock piles", 6], ["Find 5 good hiding spots", 4], ["Walk round Zone 1", 3]] },
+      5:  { build: [["Make each hiding spot a bit tricky to reach", 6], ["Build a signpost to Zone 2", 4], ["Make a Zone 1 sign", 5], ["Decorate Zone 1", 5], ["Explore it from the spawn with no help", 4]] },
+      9:  { build: [["Build Zone 2: a forest or caves", 6], ["Make winding paths", 4], ["Add 2 secret corners", 4], ["Add a ghost wall and a falling rock", 4], ["Add lava or quicksand", 3], ["Put Zone 2 in a folder and add a sign", 4]] },
+      14: { build: [["Put a checkpoint at the start of Zone 3", 4], ["Build a mountain or cave", 6], ["Add a moving raft or lift", 5], ["Hide the hardest coins up high", 4], ["Add a Jump Pad to reach them", 3], ["Put Zone 3 in a folder and add a sign", 4]] },
+      15: { build: [["Build a treasure room", 5], ["Add the kit treasure chest", 3], ["Add the confetti", 3], ["Add a You Win sign", 4], ["Explore the whole island from the spawn", 6], ["Fix anything that stops you finishing", 4]] } } },
+  race: { name: "Race Track", pitch: "A race course with ramps, jumps and hazards. Beat your best lap!", uses: "Power-Ups, Things That Move, Danger Zone", col: "#3fb6c9", icon: "race",
     hunt: "Race 3 full laps",
-    m: { 17: ["Build the Track", "I can build my own race track", "Build a tunnel or a bridge"], 18: ["Turbo Time", "I can add ramps, jumps and hazards", "Put a trophy at the finish"] },
+    m: { 3: ["Lay the Track", "I can build the first section of my track", "Add a tunnel"],
+         14: ["Turbo Section", "I can build the fastest, hardest section", "A jump that needs a boost pad run-up"],
+         15: ["Finish Line", "I can finish my track and time a lap", "Beat your best lap"] },
     plan: {
-      16: { build: [["Name your game", 3], ["Pick a theme: city, desert, snow or space", 3], ["Draw your track from above", 6], ["Mark the ramps and shortcuts", 4], ["Mark the hazards", 4], ["Open the Racing template and save it with your game's name", 8, "The template gives working cars and a lap timer"]] },
-      17: { show: [["Look at your track drawing", 3], ["Copy track pieces with Ctrl+D", 3], ["Rotate pieces to make corners", 4]],
-            build: [["Lay the straight bits", 6], ["Add 2 corners", 6], ["Join the track into a loop", 5], ["Add a start and finish line", 4], ["Paint the track in your theme", 4], ["Drive one lap", 3]] },
-      18: { show: [["Copy and tilt a ramp", 3], ["Make a spinner with a hinge motor", 4, "MotorMaxTorque up, AngularVelocity 2 or less"], ["Add confetti from the kit", 3]],
-            build: [["Add 2 ramps", 5], ["Add a shortcut", 5], ["Add a big jump", 4], ["Add a spinning hazard", 6], ["Add cones and barriers", 4], ["Add a finish celebration", 4]] } } },
-  tower: { name: "Tower Climb", pitch: "A tall tower to climb floor by floor, with jump pads and moving platforms.", uses: "Trap Course, Things That Move, Power-Ups", col: "#8a6cff", icon: "tower",
+      2:  { build: [["Pick your theme: city, desert, snow or space", 2], ["Paint the Baseplate in your theme", 3], ["Change its Material", 2], ["Build a start line from 4 parts", 6], ["Move the SpawnLocation behind the start line", 3], ["Paint a starting grid", 5], ["Check everything is Anchored, then Play", 4]] },
+      3:  { build: [["Build a straight track piece", 3], ["Copy it with Ctrl+D into a long straight", 5], ["Turn pieces 15° at a time for corner 1", 5], ["Build corner 2", 5], ["Add low edges so you stay on", 4], ["Run Section 1", 3]] },
+      5:  { build: [["Add a ramp to end Section 1", 5], ["Make a Section 1 sign", 5], ["Add barriers and cones", 5], ["Race it against a stopwatch", 5], ["Can you beat your time?", 4]] },
+      9:  { build: [["Build Section 2: the hazard section", 6], ["Add tight corners", 4], ["Add a ghost barrier shortcut", 4], ["Add falling blocks on the track", 4], ["Add lava along the edges", 3], ["Put Section 2 in a folder and add a sign", 4]] },
+      14: { build: [["Put a checkpoint at the start of Section 3", 4], ["Build 2 ramps", 5], ["Add a big jump", 5], ["Put a boost pad before the jump", 4], ["Add a spinning sweeper bar", 3], ["Put Section 3 in a folder and add a sign", 4]] },
+      15: { build: [["Build a finish line arch", 5], ["Add the kit Lap Timer start and finish", 5, "Start part on the start line, finish part on the finish line"], ["Add the confetti", 3], ["Add a You Win sign", 3], ["Race the whole track from the spawn", 5], ["Beat your best time", 4]] } } },
+  tower: { name: "Tower Climb", pitch: "A tall tower to climb floor by floor, with jump pads and moving platforms.", uses: "Power-Ups, Things That Move, Save Point", col: "#8a6cff", icon: "tower",
     hunt: "Climb all the way to the top",
-    m: { 17: ["Floors 1 and 2", "I can build upwards, floor by floor", "Add a secret window ledge"], 18: ["The Top Floor", "I can finish my tower", "Put a trophy at the top"] },
+    m: { 3: ["Floor 1", "I can build the first floor of my tower", "Add a window ledge"],
+         14: ["The Top Floor", "I can build the hardest floor", "A jump that needs a Speed Pad run-up"],
+         15: ["The Summit", "I can finish my tower at the very top", "Climb to the top with zero falls"] },
     plan: {
-      16: { build: [["Name your game", 3], ["Pick a theme: castle, rocket, candy or jungle", 3], ["Draw your tower from the side", 5], ["Plan 3 floors: easy, medium, hard", 5], ["Mark the jump pads and traps", 4], ["Build the ground floor and spawn", 8]] },
-      17: { show: [["Build upwards: stack parts and Move them up", 3], ["Snap to grid keeps floors level", 3], ["A Jump Pad reaches the next floor", 4, "CharacterUseJumpPower ticked under StarterPlayer"]],
-            build: [["Build floor 1's platforms", 7], ["Add a Jump Pad up to floor 2", 4], ["Put a checkpoint on floor 2", 3, "Teams method from session 11"], ["Build floor 2's platforms", 6], ["Add a trap on floor 2", 4], ["Climb to floor 2", 4]] },
-      18: { show: [["Moving platform reminder", 4, "Servo slides once; use the kit's Back and Forth part"], ["Kill Bricks for anyone who falls", 3], ["Plan the very top", 3]],
-            build: [["Put a checkpoint on floor 3", 3], ["Build floor 3, the hardest", 7], ["Add a spinning or sliding platform", 6], ["Build the top with a finish pad", 4], ["Add confetti and a You Win sign", 4], ["Climb all the way up", 4]] } } },
-  maze: { name: "Maze Escape", pitch: "A maze full of ghost walls, secret doors and traps. Can players find the way out?", uses: "Switch It, Danger Zone, Save Point", col: "#2fa36b", icon: "maze",
+      2:  { build: [["Pick your theme: castle, rocket, candy or jungle", 2], ["Paint the Baseplate in your theme", 3], ["Build a square base", 5], ["Add 4 low walls round it", 6], ["Move the SpawnLocation inside", 3], ["Colour the base in your theme", 3], ["Check everything is Anchored, then Play", 3]] },
+      3:  { build: [["Build platform 1 against the inside wall", 4], ["Copy it with Ctrl+D", 3], ["Move each copy up a step", 6], ["Make 6 platforms climbing round", 5], ["Build the walls up to floor 2's height", 5], ["Climb Floor 1", 3]] },
+      5:  { build: [["Add 2 harder jumps", 6], ["Build the floor 2 floor plate", 5], ["Make a Floor 1 sign", 5], ["Decorate Floor 1", 4], ["Climb it from the spawn with no help", 4]] },
+      9:  { build: [["Build Floor 2's platforms", 6], ["Add a ghost floor trap", 4], ["Add a falling platform", 4], ["Build up to floor 3's height", 5], ["Add kill bricks", 3], ["Put Floor 2 in a folder and add a sign", 4]] },
+      14: { build: [["Put a checkpoint on Floor 3", 4], ["Build the hardest platforms", 6], ["Add a sliding lift platform", 5], ["Add Jump Pads up", 4], ["Build the very top", 3], ["Put Floor 3 in a folder and add a sign", 4]] },
+      15: { build: [["Build the summit platform", 5], ["Add the confetti", 3], ["Add a You Win sign", 4], ["Add a trophy", 3], ["Climb the whole tower from the spawn", 6], ["Fix anything that stops you finishing", 4]] } } },
+  maze: { name: "Maze Escape", pitch: "A maze full of ghost walls, secret doors and traps. Can players find the way out?", uses: "Switch It, Danger Zone, Things That Move", col: "#2fa36b", icon: "maze",
     hunt: "Escape your maze from the start",
-    m: { 17: ["Build the Maze", "I can build a maze from my plan", "Add a second way out"], 18: ["Secrets and Traps", "I can add tricks to my maze", "Put a trophy in the finish room"] },
+    m: { 3: ["Maze Walls", "I can build the first section of my maze", "Add a third dead end"],
+         14: ["The Last Section", "I can build the hardest part of my maze", "A secret shortcut only you know"],
+         15: ["The Way Out", "I can finish my maze with an exit room", "Escape in under 2 minutes"] },
     plan: {
-      16: { build: [["Name your game", 3], ["Pick a theme: haunted house, jungle, ice cave or space base", 3], ["Draw your maze from above on squared paper", 6], ["Mark the way out", 3], ["Mark the ghost walls and secret doors", 5], ["Build the outside walls", 8]] },
-      17: { show: [["Copy a wall with Ctrl+D", 3], ["Snap to grid keeps walls lined up", 3], ["Group walls with Ctrl+G", 4]],
-            build: [["Build the first corridor", 5], ["Add 2 dead ends", 5], ["Build the middle of the maze", 6], ["Build the way out", 5], ["Make the walls tall so nobody jumps over", 3], ["Walk through it once", 4]] },
-      18: { show: [["Ghost wall: CanCollide off", 3], ["Invisible wall: Transparency 1", 3], ["Kill Brick reminder", 4]],
-            build: [["Add a ghost wall shortcut", 5], ["Add an invisible wall that blocks the way", 5], ["Add 2 Kill Brick traps", 4], ["Add a checkpoint halfway", 4, "Teams method from session 11"], ["Hide coins in the dead ends", 4], ["Build a finish room with confetti", 6]] } } }
+      2:  { build: [["Pick your theme: haunted house, jungle, ice cave or space base", 2], ["Paint the Baseplate in your theme", 3], ["Build an entrance archway", 5], ["Build the outer walls", 7], ["Move the SpawnLocation to the entrance", 3], ["Check everything is Anchored, then Play", 5]] },
+      3:  { build: [["Build one wall", 3], ["Copy walls with Ctrl+D", 4], ["Build the first corridor", 5], ["Add 2 dead ends", 5], ["Make the walls tall so nobody jumps over", 3], ["Walk through Section 1", 4]] },
+      5:  { build: [["Build a doorway out of Section 1", 5], ["Make a Section 1 sign", 5], ["Add torches or decorations", 5], ["Walk it from the spawn with no help", 4], ["Can someone else find the way?", 5]] },
+      9:  { build: [["Build Section 2's corridors", 6], ["Make them twistier", 4], ["Add a ghost wall secret door", 4], ["Add an invisible wall", 4], ["Add trap tiles in the dead ends", 3], ["Put Section 2 in a folder and add a sign", 4]] },
+      14: { build: [["Put a checkpoint at the start of Section 3", 4], ["Build Section 3's corridors", 6], ["Add a sliding wall door", 5], ["Add a spinning bar in a corridor", 4], ["Add traps", 3], ["Put Section 3 in a folder and add a sign", 3]] },
+      15: { build: [["Build the exit room", 5], ["Add the confetti", 3], ["Add a You Win sign", 4], ["Add a trophy", 3], ["Escape the whole maze from the spawn", 6], ["Fix anything that stops you escaping", 4]] } } }
 };
 const PATH_KEYS = Object.keys(PATHS);
 const pathOf = () => PATHS[state.path] ? state.path : "obby";
 const gkey = n => n >= 16 ? n + "-" + pathOf() : String(n);
 function missionOf(n) {
-  const base = MISSIONS[n - 1]; if (n < 16) return base;
+  const base = MISSIONS[n - 1]; if (n < 2) return base;
   const P = PATHS[pathOf()], o = P.m[n];
   return Object.assign({}, base, o ? { name: o[0], goal: o[1], bonus: o[2] } : {}, { path: pathOf() });
 }
 const allMissions = () => MISSIONS.map(m => missionOf(m.n));
 function planFor(n) {
-  const base = PLAN[n]; if (n < 16) return base;
+  const base = PLAN[n]; if (n < 2) return base;
   const P = PATHS[pathOf()], p = Object.assign({}, base, P.plan[n] || {});
   if (n === 19) p.build = [[P.hunt, 6]].concat(base.build.slice(1));
   return p;
 }
 const customOf = n => obj(state.custom[gkey(n)]);
-/* Dream game: picked at the start, it adds one "dream link" goal to each of sessions 1–15 that uses that
-   session's skill for the game they want to make. Every core goal stays, so they still learn everything.
-   Refined at session 6 (pick a world) and session 16 (final game, theme and star feature). */
-const DREAM_LINKS = {
-  obby: ["Find the highest spot. Could an obby start up there?", "Paint one platform in your dream obby's colours", "Make a tricky obby jump: small platform, big gap", "Turn a ramp into an obby slide", "Add one extra jump that's your hardest yet",
-         "Build a starting tower for your obby", "Decorate an obby start with flags and lights", "Make a ghost floor that tricks obby players", "Make a lava jump you'd put in your obby", "Put a Stage 1 sign at the start",
-         "Put a flag on your checkpoint like a real obby", "Make a spinning bar for your obby", "Hide a coin on the hardest jump", "Use a Jump Pad to reach a secret shortcut", "Pick the part of this level you'd keep for your obby"],
-  coins: ["Spot 3 good hiding places for coins", "Paint a part gold so it looks like treasure", "Make a tiny hiding gap behind a big block", "Hide a part behind the track as secret treasure", "Hide a gold block somewhere in your remix",
-          "Build a treasure hut with a secret corner", "Make a jungle corner where treasure could hide", "Hide a treasure spot behind an invisible wall", "Guard a treasure block with a lava trap", "Hide a gold block at the end of your course",
-          "Put a checkpoint next to a treasure spot", "Make a moving platform that carries you to treasure", "Make a coin trail that leads somewhere secret", "Use a Jump Pad to reach a high-up coin", "Hide one coin that only you know about"],
-  race:  ["Fly along a path a race car could drive", "Paint a racing stripe on a platform", "Tilt a part to make a ramp", "Put a sign up with your track's name", "Add a ramp somewhere in your remix",
-          "Build a pit stop garage", "Line a road with fences and lights", "Make a barrier you can drive through (CanCollide off)", "Put a lava hazard next to a road", "Make one jump a ramp jump",
-          "Make a checkpoint look like a finish arch", "Make a spinning hazard a car would dodge", "Put coins in a line like a racing line", "Test a Speed Pad. How fast feels like racing?", "Add a long straight you could race along"],
-  tower: ["Fly up as high as you can. How tall could a tower be?", "Paint a column of parts in tower colours", "Stack 3 platforms on top of each other", "Build a ramp that climbs upwards", "Make one jump go upwards",
-          "Build your tallest tower yet", "Put lights up the side of a tower", "Make a falling block on a high ledge", "Put lava at the bottom so falling hurts", "Make your last jump the highest",
-          "Put a checkpoint high up", "Make a platform that slides upwards", "Put a coin at the very top", "Use a Jump Pad to go up a floor", "Add a section that climbs upwards"],
-  maze:  ["Fly through a gap like a maze corridor", "Paint walls in spooky or icy maze colours", "Scale a part into a long, tall wall", "Move cones to make a mini maze", "Add a wall that blocks a shortcut",
-          "Build a small maze from 6 walls", "Use fences as maze walls", "Make a ghost wall secret door", "Hide a trap in a dead end", "Make one path a dead end",
-          "Put a checkpoint in the middle of a maze", "Make a sliding wall door", "Hide a coin in a dead end", "Put a Speed Pad in a long corridor", "Add a secret passage"]
-};
+/* Dream game: an optional "what would you like to make?" at session 1. It pre-selects the game card at
+   session 2, where the real game type is picked. From session 2 every goal is for that game. */
 const THEMES = {
   obby: ["Lava", "Ice", "Candy", "Space"], coins: ["Tropical", "Pirate", "Jungle", "Snowy"], race: ["City", "Desert", "Snow", "Space"],
   tower: ["Castle", "Rocket", "Candy", "Jungle"], maze: ["Haunted house", "Jungle", "Ice cave", "Space base"], all: ["Lava", "Space", "Jungle", "Candy", "Ice", "Haunted"]
@@ -823,11 +819,6 @@ const FEATURES = {
 const FEATURE_GOALS = { 16: "Draw your star feature on the plan: ", 17: "Add your first star feature: ", 18: "Add more of your star feature: ", 19: "Test every one of your star feature: ", 20: "Show off your star feature at the premiere: " };
 const dreamKey = () => PATHS[state.dream] || state.dream === "all" ? state.dream : "";
 function dreamLink(n) {
-  if (n <= 15) {
-    const d = dreamKey(); if (!d) return null;
-    const k = d === "all" ? PATH_KEYS[(n - 1) % PATH_KEYS.length] : d;
-    return { t: (d === "all" ? "Try a " + PATHS[k].name + " idea: " : "Dream game: ") + DREAM_LINKS[k][n - 1], path: k };
-  }
   if (state.path && state.feature && FEATURE_GOALS[n]) return { t: FEATURE_GOALS[n] + state.feature, path: state.path };
   return null;
 }
@@ -849,7 +840,7 @@ function stagesFor(n, all) {
         goals.splice(goals.length - 1, 0, { t: dl.t, min: 3, tip: "Ties today's skill to the game they want to make", kind: "dream", i: "dream", stage: 2, core: true, dream: dl.path });
       }
     }
-    if (n === 16 && state.theme && state.theme !== "later") goals.forEach(g => { if (/^Pick (a|your)\b.*theme/i.test(g.t)) g.t = "Your world is " + state.theme + ". Keep it or pick a new one"; });
+    if (n === 2 && state.theme && state.theme !== "later") goals.forEach(g => { if (/^Pick (a|your)\b.*theme/i.test(g.t)) g.t = "Your world is " + state.theme + ". Keep it or pick a new one"; });
     extra.filter(x => x && x.stage === si).forEach(x => {
       const g = { t: String(x.t || "New goal"), min: +x.min || 1, tip: "", kind: "", i: x.id, stage: si, custom: true, core: si === 2 };
       if (si === 2) goals.splice(goals.length - 1, 0, g); else goals.push(g);
@@ -863,14 +854,14 @@ const goalsFlat = n => stagesFor(n).flatMap(s => s.goals);
 const findGoal = (n, id) => goalsFlat(n).find(g => g.i === id);
 
 const BOSSES = {
-  5:  { name: "The Grey Blob", line: "I turned the whole level boring grey. Remix it to beat me!", col: "#8fa3aa", extra: "drip" },
+  5:  { name: "The Grey Blob", line: "Nobody will ever finish your Zone 1. Prove me wrong!", col: "#8fa3aa", extra: "drip" },
   10: { name: "Captain Trapjaw", line: "Nobody gets past my traps! Build a course that's fair but tricky.", col: "#ff6a3d", extra: "teeth" },
   15: { name: "The Glitch King", line: "I scrambled every skill you know. Use them all at once!", col: "#8a6cff", extra: "crown" },
   20: { name: "Launch Dragon", line: "Your game stays secret unless you can launch it past me!", col: "#2fa36b", extra: "horns" }
 };
 
 const ROUTINE = [
-  { name: "Warm-up", min: 5, at: "0–5", d: "Play last session's build, look at the mission card" },
+  { name: "Warm-up", min: 5, at: "0–5", d: "Open your game, play it from the spawn, look at the mission card" },
   { name: "Show me", min: 10, at: "5–15", d: "Watch the skill, then copy it straight away" },
   { name: "Build time", min: 30, at: "15–45", d: "Work through the mission card, break halfway" },
   { name: "Play test", min: 10, at: "45–55", d: "Both play it: one wow, one what if" },
@@ -885,7 +876,7 @@ const POS = [
   [840,210],[900,290],[850,370],[930,420],[880,120]
 ];
 const ISLANDS = [
-  {cx:185,cy:270,rx:175,ry:190,name:"Template Island",sub:"Sessions 1–5",lx:185,ly:470},
+  {cx:185,cy:270,rx:175,ry:190,name:"Foundation Island",sub:"Sessions 1–5",lx:185,ly:470},
   {cx:570,cy:240,rx:230,ry:210,name:"Build Bay",sub:"Sessions 6–15",lx:560,ly:478},
   {cx:885,cy:270,rx:110,ry:210,name:"Creator Peak",sub:"Sessions 16–20",lx:885,ly:500}
 ];
@@ -905,7 +896,7 @@ const doneCount = () => MISSIONS.filter(m => state.done[m.n]).length;
 function nextStone() { for (const m of MISSIONS) if (!state.done[m.n]) return m.n; return null; }
 function rank() { let r = RANKS[0][1]; for (const [need, t] of RANKS) if (need === 0 || state.done[need]) r = t; return r; }
 const phaseOf = n => n <= 5 ? 1 : n <= 15 ? 2 : 3;
-const PHASES = { 1: "Phase 1 · Make it mine", 2: "Phase 2 · Build and switch on", 3: "Phase 3 · My first game" };
+const PHASES = { 1: "Phase 1 · Lay the foundations", 2: "Phase 2 · Build and switch on", 3: "Phase 3 · Make it a real game" };
 const goalsOf = n => { const a = state.goals[gkey(n)], o = {}; if (a && typeof a === "object") for (const k in a) if (a[k] === 1 || a[k] === 2) o[k] = a[k]; return o; };
 const goalsSmashed = () => Object.keys(state.goals).reduce((t, k) => t + Object.values(state.goals[k] || {}).filter(v => v === 1).length, 0);
 function curGoal(n) { const a = goalsOf(n); return goalsFlat(n).find(g => !a[g.i]) || null; }
@@ -963,9 +954,9 @@ function drawMission() {
   const choosing = drawChooser(m);
   $("chooser").hidden = !choosing; $("qcard").hidden = !!choosing;
   const dk = dreamKey();
-  if (dk && m.n < 16) { const c = h("span", "gamechip", dk === "all" ? "Dream: try everything" : "Dream: " + PATHS[dk].name); c.style.background = dk === "all" ? "var(--sand)" : PATHS[dk].col; c.style.color = "var(--ink)"; meta.appendChild(c); }
+  if (dk && m.n < 2 && !state.path) { const c = h("span", "gamechip", dk === "all" ? "Dream: try everything" : "Dream: " + PATHS[dk].name); c.style.background = dk === "all" ? "var(--sand)" : PATHS[dk].col; c.style.color = "var(--ink)"; meta.appendChild(c); }
   if (state.theme && state.theme !== "later") meta.appendChild(h("span", "pill", "World: " + state.theme));
-  if (m.n >= 16 && state.path) { const c = h("span", "gamechip", PATHS[state.path].name + (state.feature ? " · " + state.feature : "")); c.style.background = PATHS[state.path].col; c.style.color = "var(--ink)"; meta.appendChild(c); }
+  if (m.n >= 2 && state.path) { const c = h("span", "gamechip", PATHS[state.path].name + (state.feature ? " · " + state.feature : "")); c.style.background = PATHS[state.path].col; c.style.color = "var(--ink)"; meta.appendChild(c); }
 
   // boss: health = core Build time goals left
   const bb = $("bossbox"); bb.innerHTML = "";
@@ -1051,9 +1042,9 @@ function drawMission() {
 }
 
 function chooserMode(n) {
-  if (n <= 15 && !dreamKey()) return "dream";
-  if (n === 6 && dreamKey() && !state.theme && !state.done[6]) return "world";
-  if (n >= 16 && !state.path) return "game";
+  if (n === 1 && !dreamKey() && !state.path) return "dream";
+  if (n >= 2 && !state.path) return "game";
+  if (n >= 2 && n < 16 && !state.theme && !state.done[n]) return "world";
   if (n >= 16 && !state.feature) return "feature";
   return "";
 }
@@ -1072,22 +1063,21 @@ function drawChooser(m) {
   const ch = $("choices"), ex = $("ch-extra"); ch.innerHTML = ""; ex.innerHTML = "";
   const set = (eye, hh, note) => { $("ch-eye").textContent = eye; $("ch-h").textContent = hh; $("ch-note").textContent = note; };
   if (mode === "dream") {
-    set("Before we start", "What game do you dream of making?", "Pick the one that sounds most fun. You'll still learn every skill, and each session gets a goal for your dream game. You can change your mind later.");
+    set("Before we start", "What game do you dream of making?", "Have a think today. At the start of session 2 you pick your real game and start building it from a blank Baseplate.");
     PATH_KEYS.forEach(k => ch.appendChild(choiceBtn(k, () => setDream(k))));
     const all = h("button", "choice"); all.id = "pick-all";
     all.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#16323b" stroke-width="3"><circle cx="20" cy="22" r="11" fill="#ff6a3d"/><circle cx="44" cy="22" r="11" fill="#ffb321"/><circle cx="20" cy="44" r="11" fill="#3fb6c9"/><circle cx="44" cy="44" r="11" fill="#2fa36b"/></g></svg>');
-    const t = h("div"); t.append(h("b", null, "Not sure yet"), h("span", null, "Try a bit of everything. Each session has an idea from a different game."), h("small", null, "Pick your favourite later"));
+    const t = h("div"); t.append(h("b", null, "Not sure yet"), h("span", null, "That's fine! Have a look at all five and decide next time."), h("small", null, "Pick at session 2"));
     all.appendChild(t); all.onclick = () => setDream("all"); ch.appendChild(all);
   } else if (mode === "world") {
-    const dk = dreamKey();
-    set("You're an Apprentice Builder!", "Make it yours: pick your world", "Your world shows up in your missions from now on. You can swap it at session 16.");
-    ch.appendChild(chipRow(THEMES[dk], state.theme, x => { state.theme = x; save(0); renderAll(); toast("World: " + x + "!"); burst(120); fanfare(); }, "world-"));
+    set("You picked " + PATHS[state.path].name + "!", "Make it yours: pick your world", "Your world is the theme for your game. You can change it any time, it's only colours.");
+    ch.appendChild(chipRow(THEMES[state.path], state.theme, x => { state.theme = x; save(0); renderAll(); toast("World: " + x + "!"); burst(120); fanfare(); }, "world-"));
     const later = h("button", "small", "Decide later"); later.onclick = () => { state.theme = "later"; save(0); renderAll(); };
-    const chg = h("button", "small", "Change my dream game"); chg.onclick = () => { state.dream = ""; save(0); renderAll(); };
+    const chg = h("button", "small", "Pick a different game"); chg.onclick = () => { state.path = ""; save(0); renderAll(); };
     ex.append(later, chg);
   } else if (mode === "game") {
     const dk = dreamKey();
-    set("You're a Master Builder. Time to choose!", "Which game will you make?", "Sessions 16 to 20 change to match it. A grown-up can swap it later.");
+    set("Time to start your game!", "Which game will you make?", "You'll build it from a blank Baseplate, a bit more every session. Your missions change to match it. A grown-up can swap it later.");
     const order = PATH_KEYS.slice().sort((a, b) => (b === dk) - (a === dk));
     order.forEach(k => ch.appendChild(choiceBtn(k, () => pickPath(k, false), k === dk ? "Your dream game" : "")));
   } else {
@@ -1451,7 +1441,7 @@ let editing = false;
 function drawPlan(m) {
   $("p-title").textContent = `Session ${m.n}: ${m.name}${m.boss ? " (boss level)" : ""}`;
   const all = goalsFlat(m.n), tot = stagesFor(m.n).reduce((t, s) => t + s.min, 0);
-  $("p-sub").textContent = `“${m.goal}” · Badge: ${m.badge} · ${all.filter(g => !g.opt).length} goals, about ${tot} min.` + (m.n >= 16 ? ` Game: ${PATHS[pathOf()].name}${state.path ? "" : " (not picked yet)"}.` : "");
+  $("p-sub").textContent = `“${m.goal}” · Badge: ${m.badge} · ${all.filter(g => !g.opt).length} goals, about ${tot} min.` + (m.n >= 2 ? ` Game: ${PATHS[pathOf()].name}${state.path ? "" : " (not picked yet)"}.` : "");
   const tools = $("p-tools"); tools.innerHTML = "";
   const eb = h("button", "small", editing ? "Done editing" : "Edit goals"); eb.setAttribute("aria-pressed", editing);
   eb.onclick = () => { editing = !editing; renderAll(); }; tools.appendChild(eb);
