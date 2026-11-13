@@ -728,7 +728,7 @@ let state = blank();
 let selected = 1;
 let tab = "mission";
 /* Online sync: the address of the sync Worker (see sync-worker/README.md). Leave "" to keep sync switched off. */
-const SYNC_URL = "";
+const SYNC_URL = "https://builders-quest-sync.jvywsf9kd8.workers.dev";
 let store = null, lsOK = false, saveTimer = null, inflight = false, again = false, confirming = false;
 
 function blank() { return { name: "", done: {}, log: [], goals: {}, notes: {}, bugs: 0, bugLog: {}, rewards: [], path: "", custom: {} }; }
