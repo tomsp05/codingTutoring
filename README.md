@@ -29,7 +29,7 @@ This is a light barrier, not real security. It's all checked in the browser, so 
 
 Progress always saves in the browser you use (localStorage). It stays there between sessions on that device and browser, but clearing browser data wipes it.
 
-**To use it on more than one computer, turn on sync.** Once the small sync Worker is set up (see [`sync-worker/README.md`](sync-worker/README.md), free, about 5 minutes), the Grown-ups tab shows **Turn on sync**. That gives you a 16-character sync code. Type the same code on any other computer and progress follows you. It still saves locally first, so it works offline and catches up later.
+**To use it on more than one computer, turn on sync.** Once the small sync Worker is set up (see [`sync-worker/README.md`](sync-worker/README.md), free, about 5 minutes), the Grown-ups tab shows a profile sign-in (name and password). Sign in with the same name and password on any computer and progress follows you. **Log out** to switch profile. It still saves locally first, so it works offline and catches up later.
 
 You can also go to **Grown-ups**, scroll to the bottom and press **Download backup**, then **Load backup** on another device.
 
