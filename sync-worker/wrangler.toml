@@ -1,0 +1,18 @@
+# Builder's Quest progress sync: a tiny Cloudflare Worker (free plan is plenty).
+# Deploy from this folder with:  npx wrangler login   then   npx wrangler deploy
+name = "builders-quest-sync"
+main = "worker.js"
+compatibility_date = "2026-04-01"
+
+# Which sites may call this Worker. "*" allows any; set it to your site, e.g. "https://quest.example.com"
+# (several can be comma-separated, http://localhost:8000 is handy for testing).
+[vars]
+ALLOWED_ORIGINS = "*"
+
+[[durable_objects.bindings]]
+name = "PROGRESS"
+class_name = "Progress"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Progress"]

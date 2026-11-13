@@ -20,11 +20,13 @@ If you put the folder inside a bigger repo, the address becomes `.../<repo-name>
 
 ## Where progress is saved
 
-On GitHub Pages, progress saves in the browser you use (localStorage). It stays there between sessions on that device and browser, but it doesn't move between devices, and clearing browser data wipes it.
+Progress always saves in the browser you use (localStorage). It stays there between sessions on that device and browser, but clearing browser data wipes it.
 
-To keep it safe or move it to another device, go to **Grown-ups**, scroll to the bottom and press **Download backup**. To carry on somewhere else, open the site there and press **Load backup**.
+**To use it on more than one computer, turn on sync.** Once the small sync Worker is set up (see [`sync-worker/README.md`](sync-worker/README.md), free, about 5 minutes), the Grown-ups tab shows **Turn on sync**. That gives you a 16-character sync code. Type the same code on any other computer and progress follows you. It still saves locally first, so it works offline and catches up later.
 
-(The claude.ai version of the page saves online instead, so it doesn't show the backup buttons.)
+You can also go to **Grown-ups**, scroll to the bottom and press **Download backup**, then **Load backup** on another device.
+
+(The claude.ai version of the page saves online instead, so it doesn't show these buttons.)
 
 ## Changing the content
 

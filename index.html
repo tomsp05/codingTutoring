@@ -480,6 +480,22 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
         <label class="small btnlike" for="importfile">Load backup</label>
         <input type="file" id="importfile" accept=".json,application/json" hidden>
       </div>
+      <div id="sync" style="margin-top:12px" hidden>
+        <div class="row" id="sync-off">
+          <p class="note" style="flex:1 1 220px">Sync across devices is off. Turn it on here, then type the sync code on any other computer to carry on there.</p>
+          <button class="small" id="sync-new">Turn on sync</button>
+        </div>
+        <div class="row" id="sync-join" style="margin-top:8px">
+          <label class="note" for="sync-code" style="flex:0 0 auto">Got a code?</label>
+          <input id="sync-code" placeholder="abcd-efgh-jkmn-pqrs" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1 1 180px; max-width:260px">
+          <button class="small" id="sync-use">Use code</button>
+        </div>
+        <div class="row" id="sync-on" hidden>
+          <p class="note" style="flex:1 1 220px">Sync code: <b id="sync-show" style="color:var(--ink); letter-spacing:.04em"></b><br>Type this on another device to carry on there. Keep it private: anyone with it can see and change this progress.</p>
+          <button class="small" id="sync-copy">Copy code</button>
+          <button class="small" id="sync-stop">Stop syncing here</button>
+        </div>
+      </div>
     </section>
   </div>
 </div>
@@ -711,6 +727,8 @@ const RANKS = [[0,"Builder in training"],[5,"Apprentice Builder"],[15,"Master Bu
 let state = blank();
 let selected = 1;
 let tab = "mission";
+/* Online sync: the address of the sync Worker (see sync-worker/README.md). Leave "" to keep sync switched off. */
+const SYNC_URL = "";
 let store = null, lsOK = false, saveTimer = null, inflight = false, again = false, confirming = false;
 
 function blank() { return { name: "", done: {}, log: [], goals: {}, notes: {}, bugs: 0, bugLog: {}, rewards: [], path: "", custom: {} }; }
@@ -1330,10 +1348,124 @@ $("importfile").onchange = e => {
   r.readAsText(f);
 };
 
+/* ---------- online sync through the sync Worker (sync-worker/), for the stand-alone site ----------
+   Progress always saves in this browser first. With a sync code set, it is also sent to the Worker,
+   and other devices using the same code pick it up (checked every 30s and whenever the tab comes back). */
+let syncCode = "", syncRev = 0, pollTimer = null, syncBusy = false;
+const SYNC_ABC = "abcdefghjkmnpqrstuvwxyz23456789";
+const fmtCode = c => c.match(/.{1,4}/g).join("-");
+const cleanCode = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, String(v)); } catch (e) {} };
+const keepLocal = () => { if (lsOK) lsSet("bq-state", JSON.stringify(state)); };
+const hasProgress = () => state.log.length > 0 || doneCount() > 0 || !!state.name;
+function newCode() { const a = new Uint32Array(16); crypto.getRandomValues(a); return Array.from(a, x => SYNC_ABC[x % SYNC_ABC.length]).join(""); }
+const syncURL = code => SYNC_URL.replace(/\/+$/, "") + "/progress/" + (code || syncCode);
+function where(t) { $("savewhere").textContent = t; }
+const ONLINE_OK = "Progress saves online and opens on any device with the sync code. A copy is kept on this device too.";
+const ONLINE_DOWN = "Can't reach online saving just now. Progress is kept on this device and will sync when it's back.";
+
+async function syncGet(code) {
+  const r = await fetch(syncURL(code), { cache: "no-store" });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error("sync " + r.status);
+  return r.json();
+}
+async function syncPut(st, force) {
+  lsSet("bq-sync-dirty", syncRev); // remembers an unsent change, and which version it was made on
+  const r = await fetch(syncURL(), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(force ? { state: st } : { state: st, baseRev: syncRev }) });
+  if (r.status === 409) { takeRemote(await r.json()); toast("Updated with newer progress from another device"); return; }
+  if (!r.ok) throw new Error("sync " + r.status);
+  const d = await r.json(); syncRev = d.rev; lsSet("bq-sync-dirty", null); where(ONLINE_OK);
+}
+function takeRemote(d) { syncRev = d.rev; lsSet("bq-sync-dirty", null); adoptAndShow(d.state, false); keepLocal(); }
+
+async function poll() {
+  if (!syncCode || syncBusy || saveTimer || inflight || document.visibilityState === "hidden") return;
+  if (lsGet("bq-sync-dirty") != null) { save(0); return; } // an earlier save didn't get through: try again
+  syncBusy = true;
+  try { const d = await syncGet(); if (d && d.rev > syncRev && !saveTimer && !inflight) takeRemote(d); where(ONLINE_OK); }
+  catch (e) { where(ONLINE_DOWN); }
+  finally { syncBusy = false; }
+}
+function startSync(code) {
+  syncCode = code; lsSet("bq-sync", code);
+  store = { set: st => syncPut(st, false) };
+  clearInterval(pollTimer); pollTimer = setInterval(poll, 30000);
+  drawSync();
+}
+function stopSync() {
+  syncCode = ""; syncRev = 0; store = null; clearInterval(pollTimer); clearTimeout(saveTimer); saveTimer = null;
+  lsSet("bq-sync", null); lsSet("bq-sync-dirty", null);
+  drawSync(); localWhere();
+}
+function drawSync() {
+  $("sync-off").hidden = $("sync-join").hidden = !!syncCode;
+  $("sync-on").hidden = !syncCode;
+  $("sync-show").textContent = syncCode ? fmtCode(syncCode) : "";
+}
+function localWhere() { where(lsOK ? "Progress is saved in this browser on this device." : "Progress lasts until this page is closed. Download a backup before you go."); }
+
+/* first load on the stand-alone site */
+async function localOnly() {
+  $("backup").hidden = false;
+  localWhere();
+  if (!SYNC_URL) return;
+  $("sync").hidden = false;
+  const code = cleanCode(lsGet("bq-sync"));
+  if (!code) { drawSync(); return; }
+  startSync(code);
+  where("Connecting to online saving…");
+  const dirty = lsGet("bq-sync-dirty");
+  try {
+    const d = await syncGet();
+    if (!d) { syncRev = 0; save(0); return; } // nothing online yet: send what this device has
+    if (dirty != null && Number(dirty) >= d.rev) { syncRev = d.rev; save(0); } // this device has the newest change, send it
+    else { const changed = JSON.stringify(d.state) !== JSON.stringify(state); takeRemote(d); if (changed && dirty != null) toast("Loaded newer progress from another device"); }
+    where(ONLINE_OK);
+  } catch (e) { syncRev = dirty != null ? Number(dirty) : 0; where(ONLINE_DOWN); }
+}
+
+$("sync-new").onclick = async () => {
+  const code = newCode(), btn = $("sync-new"); btn.disabled = true;
+  try {
+    syncCode = code; syncRev = 0;
+    await syncPut(JSON.parse(JSON.stringify(state)), true);
+    startSync(code); where(ONLINE_OK); toast("Sync is on");
+  } catch (e) { syncCode = ""; lsSet("bq-sync-dirty", null); toast("Couldn't reach online saving. Try again in a moment."); }
+  finally { btn.disabled = false; }
+};
+$("sync-use").onclick = async () => {
+  const code = cleanCode($("sync-code").value);
+  if (code.length !== 16) { toast("A sync code has 16 letters and numbers"); return; }
+  const btn = $("sync-use"); btn.disabled = true;
+  try {
+    const d = await syncGet(code);
+    if (!d) { toast("No progress found for that code. Check it and try again."); return; }
+    if (hasProgress() && JSON.stringify(d.state) !== JSON.stringify(state) &&
+        !confirm("This device already has some progress. Replace it with the progress saved under this code?\n\n(Press Cancel and use Download backup first if you're not sure.)")) return;
+    startSync(code); takeRemote(d); selected = nextStone() || 20; renderAll();
+    $("sync-code").value = ""; where(ONLINE_OK); toast("Synced. Carry on where you left off!");
+  } catch (e) { toast("Couldn't reach online saving. Try again in a moment."); }
+  finally { btn.disabled = false; }
+};
+$("sync-code").addEventListener("keydown", e => { if (e.key === "Enter") $("sync-use").click(); });
+$("sync-copy").onclick = () => {
+  const t = fmtCode(syncCode);
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Code copied"), () => toast("Code: " + t));
+};
+$("sync-stop").onclick = () => {
+  if (!confirm("Stop syncing on this device? Progress stays here, it just won't update from other devices. You can type the code again any time.")) return;
+  stopSync(); toast("Sync is off on this device");
+};
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") poll(); });
+addEventListener("focus", poll);
+addEventListener("online", poll);
+
 (async () => {
   try {
     const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
-    if (!db) { $("savewhere").textContent = lsOK ? "Progress is saved in this browser on this device." : "Progress lasts until this page is closed. Download a backup before you go."; $("backup").hidden = false; return; }
+    if (!db) { localOnly(); return; }
     store = db.doc("progress/main");
     let first = true;
     const timer = setTimeout(() => { if (first) $("savewhere").textContent = "Still connecting… progress is kept on this device for now."; }, 10000);
@@ -1348,7 +1480,7 @@ $("importfile").onchange = e => {
       if (saveTimer || inflight) return; // our own edit is on its way
       if (snap.exists) { const d = snap.data(); if (JSON.stringify(d) !== JSON.stringify(state)) adoptAndShow(d, false); }
     }, () => { clearTimeout(timer); $("savewhere").textContent = "Couldn't reach online saving. Progress is kept on this device."; });
-  } catch (e) { $("savewhere").textContent = "Progress is saved in this browser on this device."; $("backup").hidden = false; }
+  } catch (e) { localOnly(); }
 })();
 </script>
 
