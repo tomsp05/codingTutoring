@@ -346,6 +346,7 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
     <label class="lockshow"><input type="checkbox" id="lock-show"> Show password</label>
     <p class="lockerr" id="lock-err" role="alert"></p>
     <button class="go" type="submit" id="lock-go">Let me in</button>
+    <button class="small" type="button" id="lock-back" hidden>Go back</button>
   </form>
 </div>
 <script>
@@ -382,20 +383,34 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
   const get = (st, k) => { try { return st.getItem(k); } catch (e) { return null; } };
   const put = (st, k, v) => { try { v == null ? st.removeItem(k) : st.setItem(k, v); return true; } catch (e) { return false; } };
   const $l = id => document.getElementById(id), lock = $l("lock");
-  window.bqGate = { admin: false, changePassword() { put(localStorage, KEY, null); put(sessionStorage, SESS, null); show(); } };
+  /* With online profiles on (window.bqProfile, set up further down the page), the password picks the profile:
+     the same password on any computer opens the same quest, and a new password starts a new quest.
+     Without them it falls back to one password saved in this browser. */
+  window.bqGate = {
+    admin: false,
+    changePassword() { if (window.bqProfile) return show("change"); put(localStorage, KEY, null); put(sessionStorage, SESS, null); show(); },
+    lockNow() { put(sessionStorage, SESS, null); window.bqGate.admin = false; show(); },
+    refresh() { if (!lock.hidden && mode !== "new") show(); }
+  };
   // On claude.ai the page is already private, so no gate there.
   if (window.claude) { lock.hidden = true; window.bqGate.off = true; return; }
-  if (get(sessionStorage, SESS)) { lock.hidden = true; window.bqGate.admin = get(sessionStorage, SESS) === "admin"; return; }
   let mode = "";
-  function show() {
-    mode = get(localStorage, KEY) ? "enter" : "set";
+  const TEXT = {
+    enter: ["Builder's Quest", "Type your secret password to start.", "Let me in"],
+    set: ["Make your secret password", "Pick a password only you and your grown-up know. You'll type it each time you start.", "Save my password"],
+    "new": ["A new password!", "No quest uses this password yet. Type it again to start a new quest with it, or go back if you made a typo.", "Start my quest"],
+    change: ["Pick a new password", "Type the new password twice. Your quest moves over to it.", "Save new password"]
+  };
+  function show(m) {
+    mode = m || (window.bqProfile || get(localStorage, KEY) ? "enter" : "set");
+    const t = TEXT[mode], two = mode !== "enter";
     lock.hidden = false; document.documentElement.classList.add("locked");
-    $l("lock-h").textContent = mode === "set" ? "Make your secret password" : "Builder's Quest";
-    $l("lock-p").textContent = mode === "set" ? "Pick a password only you and your grown-up know. You'll type it each time you start." : "Type your secret password to start.";
-    $l("lock-l2").hidden = $l("lock-2").hidden = mode !== "set";
-    $l("lock-go").textContent = mode === "set" ? "Save my password" : "Let me in";
-    $l("lock-1").value = $l("lock-2").value = ""; $l("lock-err").textContent = "";
-    setTimeout(() => { try { $l("lock-1").focus(); } catch (e) {} }, 50);
+    $l("lock-h").textContent = t[0]; $l("lock-p").textContent = t[1]; $l("lock-go").textContent = t[2];
+    $l("lock-l2").hidden = $l("lock-2").hidden = !two;
+    $l("lock-back").hidden = mode !== "new" && mode !== "change";
+    if (mode !== "new") $l("lock-1").value = "";
+    $l("lock-2").value = ""; $l("lock-err").textContent = "";
+    setTimeout(() => { try { $l(mode === "new" ? "lock-2" : "lock-1").focus(); } catch (e) {} }, 50);
   }
   function open(asAdmin) {
     put(sessionStorage, SESS, asAdmin ? "admin" : "1"); window.bqGate.admin = asAdmin;
@@ -404,15 +419,35 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
   }
   function err(t) { const e = $l("lock-err"); e.textContent = t; const c = $l("lockform"); c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); }
   $l("lock-show").onchange = e => { $l("lock-1").type = $l("lock-2").type = e.target.checked ? "text" : "password"; };
-  $l("lockform").addEventListener("submit", e => {
+  $l("lock-back").onclick = () => { if (mode === "change" && get(sessionStorage, SESS) !== null) { lock.hidden = true; document.documentElement.classList.remove("locked"); return; } show("enter"); };
+  let busy = false;
+  $l("lockform").addEventListener("submit", async e => {
     e.preventDefault();
-    const v = $l("lock-1").value, hv = hash(v);
-    if (hv === ADMIN_HASH) return open(true);
-    if (mode === "enter") return hv === get(localStorage, KEY) ? open(false) : err("Not quite! Try again.");
-    if (v.trim().length < 3) return err("Make it at least 3 letters long.");
-    if (v !== $l("lock-2").value) return err("Those two don't match. Try again.");
-    put(localStorage, KEY, hv); open(false);
+    if (busy) return;
+    const v = $l("lock-1").value, v2 = $l("lock-2").value, hv = hash(v);
+    if (hv === ADMIN_HASH && mode === "enter") return open(true);
+    const P = window.bqProfile;
+    if (!P) {
+      if (mode === "enter") return hv === get(localStorage, KEY) ? open(false) : err("Not quite! Try again.");
+      if (v.trim().length < 3) return err("Make it at least 3 letters long.");
+      if (v !== v2) return err("Those two don't match. Try again.");
+      put(localStorage, KEY, hv); return open(false);
+    }
+    if (mode !== "enter") {
+      if (v.trim().length < 4) return err("Make it at least 4 letters long.");
+      if (v !== v2) return err("Those two don't match. Try again.");
+      if (hv === ADMIN_HASH) return err("Pick a different password.");
+    }
+    busy = true; const go = $l("lock-go"), label = go.textContent; go.disabled = true; go.textContent = "Checking…";
+    try {
+      const r = await (mode === "change" ? P.change(v) : P.unlock(v, mode === "new"));
+      if (r.ok) return open(false);
+      if (r.isNew) return show("new");
+      err(r.err || "Not quite! Try again.");
+    } finally { busy = false; go.disabled = false; if (!lock.hidden) go.textContent = TEXT[mode][2]; else go.textContent = label; }
   });
+  // Already unlocked in this tab (e.g. after a reload)? Stay in.
+  if (get(sessionStorage, SESS)) { lock.hidden = true; window.bqGate.admin = get(sessionStorage, SESS) === "admin"; return; }
   show();
 })();
 </script>
@@ -424,6 +459,7 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
       <label for="bname">Builder</label>
       <input id="bname" maxlength="20" placeholder="Your builder name" autocomplete="off">
       <span class="title-chip" id="rank">Builder in training</span>
+      <button class="small" id="hdr-out" hidden>Log out</button>
     </div>
   </header>
 
@@ -601,14 +637,8 @@ canvas#fx { position: fixed; inset: 0; pointer-events: none; z-index: 35; width:
         <button class="small" id="changepass">Change the password</button>
       </div>
       <div id="sync" style="margin-top:12px" hidden>
-        <form class="row" id="sync-off" autocomplete="on">
-          <p class="note" style="flex:1 1 100%">Sign in to a profile to save progress online. Use the same name and password on any computer to carry on there. A new name makes a new profile.</p>
-          <input id="prof-name" name="username" placeholder="Profile name" autocomplete="username" autocapitalize="off" spellcheck="false" style="flex:1 1 150px; max-width:220px">
-          <input id="prof-pass" name="password" type="password" placeholder="Password" autocomplete="current-password" style="flex:1 1 150px; max-width:220px">
-          <button class="small" id="prof-in" type="submit">Sign in</button>
-        </form>
-        <div class="row" id="sync-on" hidden>
-          <p class="note" style="flex:1 1 220px">Signed in as <b id="sync-show" style="color:var(--ink)"></b>. Progress saves online and opens on any computer with this name and password.</p>
+        <div class="row">
+          <p class="note" id="sync-who" style="flex:1 1 220px"></p>
           <button class="small" id="prof-out">Log out</button>
         </div>
       </div>
@@ -1656,26 +1686,28 @@ $("importfile").onchange = e => {
 };
 
 /* ---------- profiles: online saving through the sync Worker (sync-worker/), for the stand-alone site ----------
-   Progress always saves in this browser first. When signed in to a profile it is also sent to the Worker,
-   and any computer signed in to the same profile picks it up (checked every 30s and whenever the tab comes back).
-   There are no accounts on the server: the profile name + password are turned into a long key (PBKDF2) here in
-   the browser, and only that key is sent. The same name and password always give the same key. */
-let syncCode = "", syncRev = 0, pollTimer = null, syncBusy = false, profName = "";
+   The lock-screen password is the profile. It is turned into a long key here in the browser (PBKDF2) and only
+   that key is sent, so the same password opens the same quest on any computer and the server never sees it.
+   Progress always saves in this browser first, then online; other computers on the same password pick it up
+   (checked every 30s and whenever the tab comes back). */
+let syncCode = "", syncRev = 0, pollTimer = null, syncBusy = false;
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, String(v)); } catch (e) {} };
 const keepLocal = () => { if (lsOK) lsSet("bq-state", JSON.stringify(state)); };
+const clone = o => JSON.parse(JSON.stringify(o));
 const hasProgress = () => state.log.length > 0 || doneCount() > 0 || !!state.name;
-const cleanName = s => String(s || "").trim().replace(/\s+/g, " ").slice(0, 40);
-async function profileKey(name, pass) {
+const isProfileKey = c => /^[0-9a-f]{32}$/.test(c || "");
+async function profileKey(pass) {
   const enc = new TextEncoder();
   const base = await crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", iterations: 150000, salt: enc.encode("builders-quest:" + name.toLowerCase()) }, base, 128);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", iterations: 150000, salt: enc.encode("builders-quest:profile") }, base, 128);
   return Array.from(new Uint8Array(bits), b => b.toString(16).padStart(2, "0")).join("");
 }
 const syncURL = code => SYNC_URL.replace(/\/+$/, "") + "/progress/" + (code || syncCode);
 function where(t) { $("savewhere").textContent = t; }
-const ONLINE_OK = "Progress saves online to this profile. A copy is kept on this device too.";
+const ONLINE_OK = "Progress saves online to your password, so it opens on any computer. A copy is kept on this device too.";
 const ONLINE_DOWN = "Can't reach online saving just now. Progress is kept on this device and will sync when it's back.";
+const NO_NET = "Can't reach online saving. Check the internet and try again.";
 
 async function syncGet(code) {
   const r = await fetch(syncURL(code), { cache: "no-store" });
@@ -1700,33 +1732,82 @@ async function poll() {
   catch (e) { where(ONLINE_DOWN); }
   finally { syncBusy = false; }
 }
-function startSync(code, name) {
-  syncCode = code; profName = name; lsSet("bq-sync", code); lsSet("bq-profile", name);
+function startSync(code) {
+  syncCode = code; lsSet("bq-sync", code);
   store = { set: st => syncPut(st, false) };
   clearInterval(pollTimer); pollTimer = setInterval(poll, 30000);
   drawSync();
 }
-function stopSync() {
-  syncCode = ""; profName = ""; syncRev = 0; store = null; clearInterval(pollTimer); clearTimeout(saveTimer); saveTimer = null;
-  lsSet("bq-sync", null); lsSet("bq-profile", null); lsSet("bq-sync-dirty", null);
-  drawSync(); localWhere();
+function leaveProfile() {
+  syncCode = ""; syncRev = 0; store = null; clearInterval(pollTimer); clearTimeout(saveTimer); saveTimer = null;
+  lsSet("bq-sync", null); lsSet("bq-sync-dirty", null);
 }
 function drawSync() {
-  $("sync-off").hidden = !!syncCode;
-  $("sync-on").hidden = !syncCode;
-  $("sync-show").textContent = profName || "your profile";
+  const inProfile = isProfileKey(syncCode);
+  $("sync-who").textContent = inProfile
+    ? "Logged in. Type the same password on any computer to carry on there. Log out to switch to another quest."
+    : "This quest isn't saved to a password yet, so it only lives on this device. Log out, then type a password to save it online.";
+  $("hdr-out").hidden = !(window.bqGate && !window.bqGate.off);
 }
-function localWhere() { where(lsOK ? "Not signed in: progress is saved in this browser on this device only." : "Progress lasts until this page is closed. Download a backup before you go."); }
+function localWhere() { where(lsOK ? "Progress is saved in this browser on this device." : "Progress lasts until this page is closed. Download a backup before you go."); }
+function showQuest() { selected = nextStone() || 20; setPart(0); renderAll(); }
+
+/* called by the lock screen: open the quest for this password */
+async function unlock(pass, confirmed) {
+  const key = await profileKey(pass);
+  if (key === syncCode) return { ok: true }; // this device's own quest: opens even offline
+  let d;
+  try { d = await syncGet(key); } catch (e) { return { err: NO_NET }; }
+  if (!d && !confirmed) return { isNew: true };
+  // finish sending any change still waiting for the quest we're leaving
+  if (syncCode && lsGet("bq-sync-dirty") != null) { try { await syncPut(clone(state), false); } catch (e) {} }
+  const carry = !isProfileKey(syncCode) && hasProgress(); // first password on this device: bring its progress along
+  if (d) {
+    if (carry) lsSet("bq-state-before-profile", JSON.stringify(state)); // safety copy, just in case
+    leaveProfile(); startSync(key); takeRemote(d); showQuest(); where(ONLINE_OK);
+    return { ok: true };
+  }
+  leaveProfile();
+  if (!carry) state = blank();
+  syncCode = key; syncRev = 0;
+  try { await syncPut(clone(state), true); }
+  catch (e) { syncCode = ""; lsSet("bq-sync-dirty", null); keepLocal(); drawSync(); return { err: NO_NET }; }
+  startSync(key); keepLocal(); showQuest(); where(ONLINE_OK);
+  toast(carry ? "Your quest now saves to your password" : "New quest started");
+  return { ok: true };
+}
+/* called by the lock screen: move this quest to a new password */
+async function change(pass) {
+  const key = await profileKey(pass), old = syncCode;
+  if (key === old) return { ok: true };
+  try {
+    if (await syncGet(key)) return { err: "That password is already used by another quest. Pick a different one." };
+    leaveProfile(); syncCode = key; syncRev = 0;
+    await syncPut(clone(state), true);
+    startSync(key); where(ONLINE_OK); toast("Password changed");
+    return { ok: true };
+  } catch (e) { leaveProfile(); if (old) startSync(old); return { err: NO_NET }; }
+}
+function logout() {
+  if (isProfileKey(syncCode)) {
+    const unsent = lsGet("bq-sync-dirty") != null || saveTimer || inflight;
+    if (!confirm(unsent ? "Some changes haven't saved online yet and would be lost. Log out anyway?" : "Log out? Your quest stays saved online. Type your password to come back.")) return;
+    leaveProfile(); state = blank(); keepLocal(); showQuest(); drawSync();
+  }
+  if (window.bqGate) window.bqGate.lockNow();
+}
+if (SYNC_URL) window.bqProfile = { unlock, change };
+if (window.bqGate && window.bqGate.refresh) window.bqGate.refresh();
 
 /* first load on the stand-alone site */
 async function localOnly() {
   $("backup").hidden = false;
   localWhere();
   if (!SYNC_URL) return;
-  $("sync").hidden = false;
+  $("sync").hidden = !(window.bqGate && !window.bqGate.off);
   const code = String(lsGet("bq-sync") || "").toLowerCase().replace(/[^a-z0-9]/g, "");
   if (!code) { drawSync(); return; }
-  startSync(code, lsGet("bq-profile") || "");
+  startSync(code);
   where("Connecting to online saving…");
   const dirty = lsGet("bq-sync-dirty");
   try {
@@ -1737,38 +1818,8 @@ async function localOnly() {
     where(ONLINE_OK);
   } catch (e) { syncRev = dirty != null ? Number(dirty) : 0; where(ONLINE_DOWN); }
 }
-
-$("sync-off").onsubmit = async e => {
-  e.preventDefault();
-  const name = cleanName($("prof-name").value), pass = $("prof-pass").value;
-  if (!name) { toast("Type a profile name"); $("prof-name").focus(); return; }
-  if (pass.length < 4) { toast("Use a password of at least 4 characters"); $("prof-pass").focus(); return; }
-  const btn = $("prof-in"); btn.disabled = true; btn.textContent = "Signing in…";
-  try {
-    const code = await profileKey(name, pass);
-    const d = await syncGet(code);
-    if (d) {
-      if (hasProgress() && JSON.stringify(d.state) !== JSON.stringify(state) &&
-          !confirm("This computer has some progress that isn't in a profile. Swap it for " + name + "'s saved progress?\n\n(Press Cancel and use Download backup first if you're not sure.)")) return;
-      startSync(code, name); takeRemote(d); selected = nextStone() || 20; renderAll();
-      toast("Welcome back! Carry on where you left off");
-    } else {
-      if (!confirm("There's no profile called " + name + " with that password yet.\n\nPress OK to make a new profile" + (hasProgress() ? " (it starts with the progress on this computer)" : "") + ", or Cancel to check the name and password.")) return;
-      syncCode = code; syncRev = 0;
-      await syncPut(JSON.parse(JSON.stringify(state)), true);
-      startSync(code, name); toast("Profile made: " + name);
-    }
-    $("prof-pass").value = ""; where(ONLINE_OK);
-  } catch (err) { if (!store) { syncCode = ""; lsSet("bq-sync-dirty", null); } toast("Couldn't reach online saving. Try again in a moment."); }
-  finally { btn.disabled = false; btn.textContent = "Sign in"; }
-};
-$("prof-out").onclick = () => {
-  const unsent = lsGet("bq-sync-dirty") != null || saveTimer || inflight;
-  if (!confirm(unsent ? "Some changes haven't reached online saving yet and will be lost. Log out anyway?" : "Log out of " + (profName || "this profile") + "? Its progress stays saved online. Sign in again any time.")) return;
-  stopSync();
-  state = blank(); selected = 1; keepLocal(); setPart(0); renderAll();
-  toast("Logged out");
-};
+$("prof-out").onclick = logout;
+$("hdr-out").onclick = logout;
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") poll(); });
 addEventListener("focus", poll);
 addEventListener("online", poll);

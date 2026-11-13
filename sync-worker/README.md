@@ -2,7 +2,7 @@
 
 A tiny Cloudflare Worker that lets Builder's Quest progress follow you between computers. It runs on Cloudflare's free plan (100,000 requests a day; a lesson uses a few hundred).
 
-Progress belongs to a **profile**: a name plus a password typed in the Grown-ups tab. The page turns the name and password into a long key in the browser (PBKDF2) and only sends that key, so the server never sees the password and there are no accounts to manage. The same name and password on any computer open the same progress. A wrong password simply looks like a new, empty profile. The Worker stores each key's progress in its own Durable Object, named by a hash of the key.
+Progress belongs to the **password typed on the lock screen**. The page turns the password into a long key in the browser (PBKDF2) and only sends that key, so the server never sees the password and there are no accounts to manage. The same password on any computer opens the same quest; a new password starts a new quest. Each learner needs their own password. The Worker stores each key's progress in its own Durable Object, named by a hash of the key.
 
 ## Set it up (about 5 minutes, once)
 
@@ -26,15 +26,17 @@ You need a free Cloudflare account (the one that already runs your domain is fin
    const SYNC_URL = "https://builders-quest-sync.<your-account>.workers.dev";
    ```
 
-   Commit and push. The Grown-ups tab now shows a profile sign-in.
+   Commit and push. The lock screen now saves each quest online under its password.
 
 3. (Optional, tidier) In `wrangler.toml` set `ALLOWED_ORIGINS` to your site's address, for example `"https://quest.example.com"`, and run `npx wrangler deploy` again. Then only your site can call the Worker from a browser.
 
 ## Using it
 
-- Grown-ups › type a profile name and password › **Sign in**. A new name makes a new profile, which starts with whatever progress is on that computer.
-- On another computer: same name and password, **Sign in**.
-- **Log out** clears the progress from that computer (it stays saved online) so someone else can sign in.
+- Lock screen: type the password. A password nobody has used yet asks you to type it again, then starts a new quest. The first time on a computer that already has progress, that progress moves into the new quest.
+- On another computer: type the same password and the quest opens there.
+- **Log out** (top right, or in Grown-ups) clears the quest from that computer (it stays saved online) and goes back to the lock screen, ready for another password.
+- Grown-ups › **Change the password** moves the quest to a new password.
+- The grown-up password still opens the page without switching quests.
 - Progress still saves in each browser first, so the page keeps working offline and catches up when it's back online. Download backup / Load backup still work as before.
 - If two computers change things at the same time, the one that saved first wins and the other shows "Updated with newer progress from another computer".
 
